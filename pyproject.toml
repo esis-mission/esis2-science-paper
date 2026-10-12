@@ -17,6 +17,12 @@ dependencies = [
     "pylatex~=1.4",
     "aastex~=0.9",
     "matplotlib",
+    "num2words~=0.5",
+    "named-arrays~=2.15",
+    "optika~=3.2",
+    "euv-snapshot-imaging-spectrograph~=1.7",
+    "utu~=0.3",
+    "fiasco~=0.8.2",
 ]
 dynamic = ["version"]
 
