@@ -7,7 +7,7 @@ name = "esis2-science-paper"
 authors = [
     {name = "Roy T. Smart", email = "roytsmart@gmail.com"},
 ]
-description = "An AAS journal article describing the science motivation, instrument, and inversions of test data for the second flight of the EUV Snapshot Imaging Spectrograph (ESIS-2)."
+description = "An AAS journal article describing the science motivation, instrument, and inversions of test data for the second flight of the EUV Snapshot Imaging Spectrograph (ESIS-II)."
 readme = "README.md"
 requires-python = ">=3.12"
 classifiers = [

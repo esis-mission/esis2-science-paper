@@ -7,19 +7,19 @@ __all__ = [
 
 def instrument() -> aastex.Section:
     """
-    The section describing ESIS-2, mostly in terms of what has changed since
+    The section describing ESIS-II, mostly in terms of what has changed since
     the first flight.
     """
-    result = aastex.Section(aastex.NoEscape(r"The \ESIStwo\ Instrument"))
+    result = aastex.Section(aastex.NoEscape(r"The \ESISII\ Instrument"))
     result.append(r"""
 \begin{outline}
 \item A six-channel \CTIS: a parabolic primary mirror images the Sun onto an octagonal field stop,
     which six gratings re-image onto six \CCDs, each channel dispersing in a different direction.
 \item Describe only what has changed.
-    The heritage design is described in the \ESISone\ instrument paper (Smart et al., in
+    The heritage design is described in the \ESISI\ instrument paper (Smart et al., in
     preparation). \roy{Cite once it is on arXiv.}
 \item The design has changed considerably since the proposal.
-    Every number comes from the current \ESIStwo\ model, \texttt{esis.flights.f2}, in the
+    Every number comes from the current \ESISII\ model, \texttt{esis.flights.f2}, in the
     \texttt{esis} package.
 \end{outline}""")
 
@@ -30,12 +30,12 @@ def instrument() -> aastex.Section:
     length of the optical table now that \MOSES\ is gone from it; new gratings; Al/Sc multilayer
     coatings; two more channels; filters moved to suit the slower beam; the telemetry interface
     (\EVTM).
-\item \textbf{Reused:} the cameras of \ESISone, the \DACS, and the ground support equipment.
+\item \textbf{Reused:} the cameras of \ESISI, the \DACS, and the ground support equipment.
     \jake{What else carries over unchanged: the field stop mount, the grating mounts, the camera
     mount?}
-\item \textbf{Table:} each subsystem of \ESISone, and whether \ESIStwo\ reuses, modifies, or
+\item \textbf{Table:} each subsystem of \ESISI, and whether \ESISII\ reuses, modifies, or
     replaces it.
-\item \textbf{Figure:} \ESISone\ and \ESIStwo\ on the optical table.
+\item \textbf{Figure:} \ESISI\ and \ESISII\ on the optical table.
 \end{outline}""")
     result.append(subsection_changes)
 
@@ -50,7 +50,7 @@ def instrument() -> aastex.Section:
     The gratings are blazed.
 \item \NeVII\ and \SiXII\ fall on opposite sides of the center of each detector without
     overlapping.
-\item The six channels take the azimuths of the six-channel layout for which \ESISone\ was built.
+\item The six channels take the azimuths of the six-channel layout for which \ESISI\ was built.
 \item Plate scale, dispersion, and resolution from the raytrace.
 \item \textbf{Table:} the optical prescription.
 \item \textbf{Figures:} the layout of the six channels and their dispersion directions; spot
@@ -67,7 +67,7 @@ def instrument() -> aastex.Section:
 \item Al/Sc multilayers~\citep{Rebellato2020,Rebellato2021} on both, compared with the Si/Sc
     alternative used for \NeVII\ by \SUTRI~\citep{Bai2023,Wu2022}.
     Designs modeled with IMD~\citep{Windt1998}, and the reflectance of witness samples.
-\item Filters: the \ESISone\ design, with the transmission modeled including an oxide layer.
+\item Filters: the \ESISI\ design, with the transmission modeled including an oxide layer.
 \item \textbf{Figure:} the reflectance of the coatings and the transmission of the filters versus
     wavelength.
 \end{outline}""")
@@ -76,7 +76,7 @@ def instrument() -> aastex.Section:
     subsection_cameras = aastex.Subsection("Cameras and Avionics")
     subsection_cameras.append(r"""
 \begin{outline}
-\item The cameras of \ESISone\ and the new cameras which make up six.
+\item The cameras of \ESISI\ and the new cameras which make up six.
     The readout sets the cadence, \cadence, with no dead time between exposures.
 \item Gain, read noise, and dark current of all six cameras. \roy{Measured with
     \texttt{msfc-ccd}.}
@@ -88,16 +88,16 @@ def instrument() -> aastex.Section:
     subsection_mechanical.append(r"""
 \begin{outline}
 \item The new positions of the primary mirror, field stop, gratings, and filters on the optical
-    table, and the effect on the sag of the table measured while aligning \ESISone.
-\item The \ESISone\ primary mirror shifted by about \ang{;10;} in vibration testing, and how the
-    \ESIStwo\ mount prevents that. \jake{Is the stiffer mount from the proposal still the plan?}
+    table, and the effect on the sag of the table measured while aligning \ESISI.
+\item The \ESISI\ primary mirror shifted by about \ang{;10;} in vibration testing, and how the
+    \ESISII\ mount prevents that. \jake{Is the stiffer mount from the proposal still the plan?}
 \end{outline}""")
     result.append(subsection_mechanical)
 
     subsection_alignment = aastex.Subsection("Alignment and Focus")
     subsection_alignment.append(r"""
 \begin{outline}
-\item The \ESISone\ procedure, with a visible-light alignment grating for each channel whose
+\item The \ESISI\ procedure, with a visible-light alignment grating for each channel whose
     ruling is scaled by the ratio of the HeNe wavelength to the center of the passband, so that
     \SI{632.8}{\nano\meter} light follows the path of the \EUV.
 \item Establish the optic axis; align the primary mirror; place the field stop at its focus;

@@ -24,16 +24,16 @@ def introduction() -> aastex.Section:
     A \CTIS\ records dispersed images of a wide \FOV\ at once~\citep{Okamoto1991,Descour1995}.
     \MOSESCapital~\citep{Kankelborg2001,Fox2010} and \ESIS~\citep{Parker2022} demonstrated the technique
     in the \EUV.
-    \ESISone\ flew on 2019 September 30 with four channels in \OV\ \SI{630}{\angstrom}, and
+    \ESISI\ flew on 2019 September 30 with four channels in \OV\ \SI{630}{\angstrom}, and
     recovered the Doppler shifts of explosive events, compact sources which act as their own slit.
     Extended structures were harder to validate.
-\item \textbf{\ESIStwo.}
+\item \textbf{\ESISII.}
     The same concept, with new optics for \NeVII\ and \SiXII\ and six channels, to observe an \AR.
     \roy{Planned launch date and range.}
 \item \textbf{Roadmap.}
     Section~\ref{sec:ScientificMotivation} motivates the passband,
-    Section~\ref{sec:TheESIStwoInstrument} describes the instrument and what has changed since
-    \ESISone, Section~\ref{sec:InversionsofTestData} inverts test data, and
+    Section~\ref{sec:TheESISIIInstrument} describes the instrument and what has changed since
+    \ESISI, Section~\ref{sec:InversionsofTestData} inverts test data, and
     Section~\ref{sec:Conclusions} concludes.
 \end{outline}""")
     return result

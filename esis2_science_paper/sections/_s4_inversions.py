@@ -8,13 +8,13 @@ __all__ = [
 def inversions() -> aastex.Section:
     """
     The section inverting test data to validate the inversion of extended
-    structures, the technology objective of ESIS-2.
+    structures, the technology objective of ESIS-II.
     """
     result = aastex.Section("Inversions of Test Data")
     result.append(r"""
 \begin{outline}
-\item \roy{``Test data'' is read here as simulated \ESIStwo\ observations of scenes whose line
-    profiles are known. Jake, is that what you meant?}
+\item The test data are simulated \ESISII\ observations of scenes whose line profiles are known,
+    so the inversions can be compared with the truth.
 \end{outline}""")
 
     subsection_data = aastex.Subsection("Test Data")
@@ -33,11 +33,11 @@ def inversions() -> aastex.Section:
     subsection_methods = aastex.Subsection("Inversion Methods")
     subsection_methods.append(r"""
 \begin{outline}
-\item \MARTCapital~\citep{Gordon1970}, as applied to \ESISone~\citep[][Appendix~B]{Parker2022}:
+\item \MARTCapital~\citep{Gordon1970}, as applied to \ESISI~\citep[][Appendix~B]{Parker2022}:
     multiplicative updates keep the solution positive and assume no line shape, and regularization
     suppresses the ``plaid'' artifacts along the projection directions.
 \item A \CNN\ trained on \IRIS\ rasters, after Smart et al.\ (2022) \roy{bib entry for the TESS
-    abstract}, retrained on the \ESIStwo\ forward model.
+    abstract}, retrained on the \ESISII\ forward model.
 \item Both are implemented in \texttt{ctis}.
 \end{outline}""")
     result.append(subsection_methods)
@@ -60,7 +60,7 @@ def inversions() -> aastex.Section:
     subsection_results.append(r"""
 \begin{outline}
 \item Compact \NeVII\ brightenings: whether the blue shifts of beam heating events are recovered
-    with few channels, as for the explosive events of \ESISone~\citep{Parker2022}.
+    with few channels, as for the explosive events of \ESISI~\citep{Parker2022}.
 \item Extended \SiXII\ structures: \numChannelsRequired\ channels recover the Doppler shift to
     within \velocityError.
 \item \textbf{Figures:} recovered versus true moments; error versus the number of channels.

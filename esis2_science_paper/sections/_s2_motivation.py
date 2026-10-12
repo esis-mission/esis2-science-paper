@@ -7,7 +7,7 @@ __all__ = [
 
 def motivation() -> aastex.Section:
     """
-    The section motivating the passband of ESIS-2 from its science objectives.
+    The section motivating the passband of ESIS-II from its science objectives.
     """
     result = aastex.Section("Scientific Motivation")
 
@@ -100,7 +100,7 @@ def motivation() -> aastex.Section:
     subsection_requirements.append(r"""
 \begin{outline}
 \item \textbf{Table:} the science traceability matrix, from the objectives to the measurement and
-    instrument requirements, and the performance expected from the \ESIStwo\ model.
+    instrument requirements, and the performance expected from the \ESISII\ model.
 \item \textbf{\FOV\ and cadence:} at least the \FOV\ of \HiC~\citep{Kobayashi2014}, which
     captured beam heating events, and a cadence at least as fast as its \SI{2}{\second}, since \TR\
     velocities can evolve faster than the \SI{4}{\second} \SiIV\ cadence of \citet{Testa2014}.

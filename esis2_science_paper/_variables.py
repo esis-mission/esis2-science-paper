@@ -30,7 +30,7 @@ def variables() -> list[aastex.Variable]:
         # the formation temperatures of the two lines, from CHIANTI
         _pending("temperatureNeVII"),
         _pending("temperatureSiXII"),
-        # from the ESIS-2 optical model in `esis.flights.f2`
+        # from the ESIS-II optical model in `esis.flights.f2`
         _pending("fieldOfView"),
         _pending("cadence"),
         # from the inversions of the test data

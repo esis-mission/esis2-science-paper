@@ -5,7 +5,7 @@
 [![Ruff](https://github.com/esis-mission/esis2-science-paper/actions/workflows/ruff.yml/badge.svg)](https://github.com/esis-mission/esis2-science-paper/actions/workflows/ruff.yml)
 
 An AAS journal article describing the second flight of the EUV Snapshot
-Imaging Spectrograph (ESIS-2), a sounding rocket computed tomography imaging
+Imaging Spectrograph (ESIS-II), a sounding rocket computed tomography imaging
 spectrograph which will observe an active region in Ne VII 465 Å and
 Si XII 499 Å.
 
@@ -16,14 +16,14 @@ Will T. Barnes, Roy T. Smart, and Adrian N. Daw
 
 ## What this is
 
-The article follows the structure of the ESIS-2 proposal in three parts:
+The article follows the structure of the ESIS-II proposal in three parts:
 
 - **Scientific motivation for the passband.** Electron beams accelerated by
   coronal reconnection heat active region moss, and blue-shift its transition
   region lines in a way that heating by conduction does not. Ne VII responds
   to beam heating in the same way, and Si XII images the extended coronal
   loops that are the hardest structures for a CTIS to invert.
-- **The ESIS-2 instrument**, mostly in terms of what has changed since the
+- **The ESIS-II instrument**, mostly in terms of what has changed since the
   first flight: the passband, the optics, two more channels, and the
   mechanical layout. The design has changed considerably since the proposal,
   so the instrument is described from the current model in

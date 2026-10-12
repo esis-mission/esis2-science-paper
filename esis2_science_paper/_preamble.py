@@ -27,10 +27,10 @@ def preamble() -> list[pylatex.base_classes.LatexObject]:
  \fi
 }
 \makeatother"""),
-        # The two flights of ESIS. LaTeX command names cannot contain digits,
-        # and the box keeps the number on the same line as the name.
-        pylatex.NoEscape(r"\newcommand{\ESISone}{\mbox{ESIS-1}}"),
-        pylatex.NoEscape(r"\newcommand{\ESIStwo}{\mbox{ESIS-2}}"),
+        # The two flights of ESIS. The box keeps the numeral on the same line
+        # as the name.
+        pylatex.NoEscape(r"\newcommand{\ESISI}{\mbox{ESIS-I}}"),
+        pylatex.NoEscape(r"\newcommand{\ESISII}{\mbox{ESIS-II}}"),
         pylatex.NoEscape(r"\newcommand{\HeII}{He\,\textsc{ii}}"),
         pylatex.NoEscape(r"\newcommand{\NeVII}{Ne\,\textsc{vii}}"),
         pylatex.NoEscape(r"\newcommand{\OV}{O\,\textsc{v}}"),

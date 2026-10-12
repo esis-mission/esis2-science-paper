@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 `esis2-science-paper` is a **reproducible scientific article**, not a conventional
 software library. The `esis2_science_paper` Python package programmatically generates
 a complete AAS-journal LaTeX article (text, figures, tables, and numeric values)
-describing the second flight of the EUV Snapshot Imaging Spectrograph (ESIS-2).
+describing the second flight of the EUV Snapshot Imaging Spectrograph (ESIS-II).
 Calling `esis2_science_paper.pdf()` produces the final `esis2-science.pdf`.
 
 This is one package within the larger Kankelborg-Group workspace (see the parent
@@ -16,15 +16,18 @@ and `esis-jet-paper` follow the same layout and are the templates it was made fr
 
 ## The article
 
-The structure parallels the ESIS-2 proposal, at Jake Parker's suggestion:
+The structure parallels the ESIS-II proposal, at Jake Parker's suggestion:
 
 - **Scientific motivation for the passband**: electron beam heating in active
   region moss, why Ne VII 465 Å and Si XII 499 Å, and the requirements.
-- **The ESIS-2 instrument**, focusing on what has changed since ESIS-1.
+- **The ESIS-II instrument**, focusing on what has changed since ESIS-I.
 - **Inversions of test data**, validating the inversion of extended structures
-  (the technology objective) with subsets of the six channels.
+  (the technology objective) with subsets of the six channels. The test data
+  are simulated ESIS-II observations of scenes whose line profiles are known.
 
-The authors are in the order of the science team in the proposal.
+The authors are in the order of the science team in the proposal, and Jake
+Parker is the corresponding author. The two flights are written with Roman
+numerals, ESIS-I and ESIS-II, as in the `esis` package.
 
 ## Rules
 
@@ -75,7 +78,7 @@ renders it.
 - **`_variables.py`**: `aastex.Variable` LaTeX macros for every numeric value
   cited in the prose.
 - **`_acronyms.py`**: `aastex.Acronym` definitions; prose uses `\ACRONYM` macros.
-- **`_preamble.py`**: custom commands: `\ESISone` and `\ESIStwo` for the two
+- **`_preamble.py`**: custom commands: `\ESISI` and `\ESISII` for the two
   flights, ion macros such as `\NeVII`, and a colored comment macro per author
   (`\jake`, `\genevieve`, `\charles`, `\amy`, `\will`, `\roy`, `\adrian`).
 

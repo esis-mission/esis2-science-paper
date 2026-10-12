@@ -9,7 +9,7 @@ def authors() -> list[aastex.Author]:
     """
     A list of the authors of this article and their affiliations.
 
-    The authors are listed in the order of the science team in the ESIS-2
+    The authors are listed in the order of the science team in the ESIS-II
     proposal.
     """
 
@@ -34,6 +34,8 @@ def authors() -> list[aastex.Author]:
             name="Jacob D. Parker",
             affiliation=gsfc,
             orcid="0000-0001-8732-8284",
+            email="jacobdparker@gmail.com",
+            corresponding=True,
         ),
         aastex.Author(
             name="Genevieve D. Vigil",
