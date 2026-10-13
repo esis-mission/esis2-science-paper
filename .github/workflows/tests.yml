@@ -37,6 +37,65 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .[test]
+      # The article reads the CHIANTI atomic database for the emission measure
+      # of an active region and for the version it names in a caption, and to
+      # compute the lines of the passband. The database is several gigabytes
+      # and the lines take a quarter of an hour, so both are cached, and the
+      # second is keyed on the first: a spectrum computed from one version of
+      # the database must not be served beside another.
+      - name: Ask fiasco which database it wants
+        id: chianti
+        run: |
+          python -c "
+          from fiasco.util.setup_db import LATEST_VERSION
+          print(f'version={LATEST_VERSION}')
+          " >> $GITHUB_OUTPUT
+      - name: Restore the CHIANTI database
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.fiasco
+          key: chianti-${{ steps.chianti.outputs.version }}
+      - name: Download and build the CHIANTI database
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          python -c "
+          import fiasco
+          from fiasco.util import check_database
+          check_database(
+              hdf5_dbase_root=fiasco.defaults['hdf5_dbase_root'],
+              ascii_dbase_root=fiasco.defaults['ascii_dbase_root'],
+              ask_before=False,
+              show_progress=False,
+          )
+          "
+      # The effective area is remembered against the versions of `optika` and
+      # `esis` which traced it, so this key has to name them too. Without
+      # them the key hits exactly, `actions/cache` declines to save what the
+      # run recomputed, and every run after a release pays for the trace again.
+      - name: Ask which optika and esis are installed
+        id: versions
+        run: |
+          python -c "
+          from importlib.metadata import version
+          print(f'optika={version(\"optika\")}')
+          print(f'esis={version(\"euv-snapshot-imaging-spectrograph\")}')
+          " >> $GITHUB_OUTPUT
+      - name: Restore the spectrum computed from it
+        uses: actions/cache@v4
+        with:
+          path: ~/.esis/cache/esis2_science_paper
+          key: >-
+            spectrum-${{ steps.chianti.outputs.version }}-${{
+            steps.versions.outputs.optika }}-${{
+            steps.versions.outputs.esis }}-${{
+            hashFiles('esis2_science_paper/_spectrum.py') }}
+          # An older spectrum is worth restoring even when this module or
+          # those versions have changed, since `joblib` decides for itself
+          # whether what it holds still answers the question, and recomputes
+          # when it does not.
+          restore-keys: |
+            spectrum-${{ steps.chianti.outputs.version }}-
       - name: Test with pytest
         env:
           # Where the `pdf` workflow will publish this build: the root of the

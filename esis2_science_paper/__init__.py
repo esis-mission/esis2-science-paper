@@ -8,6 +8,7 @@ from ._authors import authors
 from ._document import document, pdf
 from ._keywords import keywords
 from ._preamble import preamble
+from ._spectrum import lines
 from ._variables import variables
 
 __all__ = [
@@ -16,6 +17,7 @@ __all__ = [
     "document",
     "figures",
     "keywords",
+    "lines",
     "pdf",
     "preamble",
     "sections",

@@ -77,6 +77,12 @@ renders it.
 - **`tables/`**: factories returning `aastex.Table` objects.
 - **`_variables.py`**: `aastex.Variable` LaTeX macros for every numeric value
   cited in the prose.
+- **`_spectrum.py`**: the CHIANTI spectrum of an active region (via `utu` and
+  `fiasco`) and the effective area of one ESIS-II channel. Both are slow, so
+  both are cached with `esis.memory`, keyed on the CHIANTI, `optika`, and `esis`
+  versions. `joblib` keys only on a function's arguments and source, so pass
+  every module-level setting (abundances, DEM, pressure) into a cached function
+  rather than reading it there, or changing it serves stale results; CI caches `~/.fiasco` and `~/.esis/cache/esis2_science_paper`.
 - **`_acronyms.py`**: `aastex.Acronym` definitions; prose uses `\ACRONYM` macros.
 - **`_preamble.py`**: custom commands: `\ESISI` and `\ESISII` for the two
   flights, ion macros such as `\NeVII`, and a colored comment macro per author
