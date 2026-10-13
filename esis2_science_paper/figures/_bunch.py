@@ -2,6 +2,7 @@ import aastex
 import astropy.units as u
 import esis
 import matplotlib.pyplot as plt
+import matplotlib.text
 import named_arrays as na
 import numpy as np
 import utu
@@ -82,8 +83,20 @@ def bunch() -> aastex.FigureStar:
         wavelength.ndarray.to_value(u.AA),
         area.ndarray.value,
         color=_color_area,
-        zorder=0,
     )
+
+    # A twin is drawn after the axes it twins, so the curve would cover the
+    # lines and their labels however low its own order. Drawing the lines'
+    # axes last instead, with their background cleared so the curve shows
+    # through, puts the curve beneath everything.
+    ax.set_zorder(ax_area.get_zorder() + 1)
+    ax.patch.set_visible(False)
+
+    # The twin's frame no longer covers the labels either, so a label pushed
+    # flush against the edge would break the frame with the padding of its
+    # box. The frame is drawn over the labels instead.
+    for spine in ax.spines.values():
+        spine.set_zorder(matplotlib.text.Text.zorder + 1)
     ax_area.set_ylim(bottom=0)
     ax_area.set_ylabel(
         f"effective area ({(u.cm**2):latex_inline})",
