@@ -32,7 +32,7 @@ def authors() -> list[aastex.Author]:
     return [
         aastex.Author(
             name="Jacob D. Parker",
-            affiliation=gsfc,
+            affiliation=msu,
             orcid="0000-0001-8732-8284",
             email="jacobdparker@gmail.com",
             corresponding=True,
