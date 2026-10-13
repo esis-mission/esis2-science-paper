@@ -12,13 +12,18 @@ import utu
 __all__ = [
     "abundance",
     "area_effective",
+    "contribution_function",
     "dem",
     "emission_measure",
     "lines",
     "num_grid",
     "pressure",
     "seed",
+    "temperature_formation",
     "version",
+    "wavelength_ne_vii",
+    "wavelength_si_iv",
+    "wavelength_si_xii",
 ]
 
 abundance = "sun_coronal_2021_chianti"
@@ -67,6 +72,18 @@ The same as the article on ESIS-I, where twenty took the roughness of the
 curve down by a factor of three from the default of twelve.
 """
 
+wavelength_ne_vii = 465.221 * u.AA
+"""The wavelength of the line of Ne VII which ESIS-II observes, as CHIANTI lists it."""
+
+wavelength_si_xii = 499.406 * u.AA
+"""The wavelength of the line of Si XII which ESIS-II observes, as CHIANTI lists it."""
+
+wavelength_si_iv = 1402.770 * u.AA
+"""
+The wavelength of the line of Si IV in which :cite:t:`Testa2014` saw the
+upflows of beam heating with IRIS, as CHIANTI lists it.
+"""
+
 _axis = "temperature"
 """The name of the axis along the temperatures of the plasma."""
 
@@ -75,6 +92,23 @@ def temperature() -> na.AbstractScalar:
     """The temperatures the spectrum is computed at."""
     return na.ScalarArray(
         ndarray=10 ** np.arange(4, 8.1, 0.1) * u.K,
+        axes=(_axis,),
+    )
+
+
+def _temperature_fine() -> na.AbstractScalar:
+    """
+    The temperatures the contribution functions are computed at.
+
+    Ten times finer than :func:`temperature`, which need only be as fine as
+    the differential emission measure it is summed against. A tenth of a
+    decade is half the width of the narrowest peak, so the curves would be
+    drawn as a few straight lines, and finer than the twentieth of a decade
+    CHIANTI tabulates its ionization fractions at, so they are drawn as
+    :mod:`fiasco` interpolates between them.
+    """
+    return na.ScalarArray(
+        ndarray=10 ** np.arange(4, 7.501, 0.01) * u.K,
         axes=(_axis,),
     )
 
@@ -184,6 +218,95 @@ def lines(
         pressure=pressure,
         chianti_version=version(),
     )
+
+
+@esis.memory.cache
+def _contribution_function(
+    ion: str,
+    wavelength: u.Quantity,
+    abundance: str,
+    pressure: u.Quantity,
+    chianti_version: str,
+) -> na.FunctionArray:
+    """
+    Compute the contribution function of a line, and remember it, since it
+    takes up to a few minutes.
+
+    Everything after the wavelength is an argument for the reason it is in
+    :func:`_lines`, so that it is part of what the cache is keyed on.
+    """
+    import fiasco
+
+    t = _temperature_fine()
+
+    result = utu.spectrum.contribution_function(
+        ion=fiasco.Ion(ion, t.ndarray, abundance=abundance),
+        density=pressure / t,
+        axis_temperature=_axis,
+    )
+
+    # An observed line is every transition at its wavelength, of which there
+    # can be more than one, so all of them are summed. CHIANTI lists its
+    # wavelengths to the milliangstrom, so that is how close they must be.
+    where = np.abs(result.inputs.ndarray - wavelength) < 0.5 * u.mAA
+    if not np.any(where):
+        raise ValueError(f"CHIANTI lists no line of {ion} at {wavelength}.")
+    index = na.ScalarArray(np.flatnonzero(where), axes="line")
+    g = result.outputs[{"line": index}].sum("line")
+
+    # the emission is isotropic, so the emissivity is spread over the whole
+    # sphere, as the radiance of each line is
+    return na.FunctionArray(
+        inputs=t,
+        outputs=(g / (4 * np.pi * u.sr)).to(u.erg * u.cm**3 / u.s / u.sr),
+    )
+
+
+def contribution_function(
+    ion: str,
+    wavelength: u.Quantity,
+) -> na.FunctionArray:
+    """
+    The contribution function of a line, as a function of temperature.
+
+    This is the emissivity of the line per steradian, divided by the number
+    densities of the electrons and of hydrogen, computed with the abundances
+    and the pressure of the spectrum of :func:`lines`.
+
+    Parameters
+    ----------
+    ion
+        The ion which emits the line, as :mod:`fiasco` names it, ``"Ne 7"``
+        for instance.
+    wavelength
+        The wavelength of the line, as CHIANTI lists it.
+    """
+    return _contribution_function(
+        ion=ion,
+        wavelength=wavelength,
+        abundance=abundance,
+        pressure=pressure,
+        chianti_version=version(),
+    )
+
+
+def temperature_formation(
+    ion: str,
+    wavelength: u.Quantity,
+) -> u.Quantity:
+    """
+    The temperature at which a line is formed, where its contribution
+    function peaks.
+
+    Parameters
+    ----------
+    ion
+        The ion which emits the line, as :mod:`fiasco` names it.
+    wavelength
+        The wavelength of the line, as CHIANTI lists it.
+    """
+    g = contribution_function(ion, wavelength)
+    return g.inputs[np.argmax(g.outputs, axis=_axis)].ndarray
 
 
 @esis.memory.cache
