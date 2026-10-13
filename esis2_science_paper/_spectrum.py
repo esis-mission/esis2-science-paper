@@ -96,11 +96,23 @@ def temperature() -> na.AbstractScalar:
     )
 
 
+_num_slice = 50
+"""
+How many temperatures the level populations of an ion are solved at at once.
+
+Si XII, the largest of the ions, takes about a seventh of a gigabyte for
+each, so this many takes about seven, under half of what a runner has.
+Fewer slices are faster, since :mod:`fiasco` builds the ion each one
+recombines from anew for every slice, and with it a ratio of protons to
+electrons which takes tens of seconds.
+"""
+
+
 def _temperature_fine() -> na.AbstractScalar:
     """
     The temperatures the contribution functions are computed at.
 
-    Ten times finer than :func:`temperature`, which need only be as fine as
+    Five times finer than :func:`temperature`, which need only be as fine as
     the differential emission measure it is summed against. A tenth of a
     decade is half the width of the narrowest peak, so the curves would be
     drawn as a few straight lines, and finer than the twentieth of a decade
@@ -108,7 +120,7 @@ def _temperature_fine() -> na.AbstractScalar:
     :mod:`fiasco` interpolates between them.
     """
     return na.ScalarArray(
-        ndarray=10 ** np.arange(4, 7.501, 0.01) * u.K,
+        ndarray=10 ** np.arange(4, 7.501, 0.02) * u.K,
         axes=(_axis,),
     )
 
@@ -224,35 +236,61 @@ def lines(
 def _contribution_function(
     ion: str,
     wavelength: u.Quantity,
+    temperature: na.AbstractScalar,
     abundance: str,
     pressure: u.Quantity,
     chianti_version: str,
 ) -> na.FunctionArray:
     """
     Compute the contribution function of a line, and remember it, since it
-    takes up to a few minutes.
+    takes several minutes.
 
     Everything after the wavelength is an argument for the reason it is in
-    :func:`_lines`, so that it is part of what the cache is keyed on.
+    :func:`_lines`, so that it is part of what the cache is keyed on. That
+    includes the temperatures: computed here from :func:`_temperature_fine`,
+    a change to the grid would be answered with the curves of the old one.
     """
     import fiasco
 
-    t = _temperature_fine()
+    t = temperature
 
-    result = utu.spectrum.contribution_function(
-        ion=fiasco.Ion(ion, t.ndarray, abundance=abundance),
-        density=pressure / t,
-        axis_temperature=_axis,
+    # The ratio of protons to electrons is the slow part of a small ion, and
+    # depends on nothing but the temperature, so it is computed once rather
+    # than once for each slice.
+    ratio = na.ScalarArray(
+        ndarray=fiasco.proton_electron_ratio(t.ndarray, abundance=abundance),
+        axes=(_axis,),
     )
 
-    # An observed line is every transition at its wavelength, of which there
-    # can be more than one, so all of them are summed. CHIANTI lists its
-    # wavelengths to the milliangstrom, so that is how close they must be.
-    where = np.abs(result.inputs.ndarray - wavelength) < 0.5 * u.mAA
-    if not np.any(where):
-        raise ValueError(f"CHIANTI lists no line of {ion} at {wavelength}.")
-    index = na.ScalarArray(np.flatnonzero(where), axes="line")
-    g = result.outputs[{"line": index}].sum("line")
+    # The level populations are solved at every temperature at once, in a
+    # matrix as wide as the ion has levels. Si XII and the ion it recombines
+    # from have over nine hundred between them, which at every temperature of
+    # the grid is nearly fifty gigabytes, three times what a runner of the
+    # continuous integration has. Each temperature is solved on its own, so
+    # solving a slice of them at a time changes nothing but the memory.
+    g = []
+    for start in range(0, t.size, _num_slice):
+        index = {_axis: slice(start, start + _num_slice)}
+        t_slice = t[index]
+
+        result = utu.spectrum.contribution_function(
+            ion=fiasco.Ion(ion, t_slice.ndarray, abundance=abundance),
+            density=pressure / t_slice,
+            axis_temperature=_axis,
+            proton_electron_ratio=ratio[index],
+        )
+
+        # An observed line is every transition at its wavelength, of which
+        # there can be more than one, so all of them are summed. CHIANTI
+        # lists its wavelengths to the milliangstrom, so that is how close
+        # they must be.
+        where = np.abs(result.inputs.ndarray - wavelength) < 0.5 * u.mAA
+        if not np.any(where):
+            raise ValueError(f"CHIANTI lists no line of {ion} at {wavelength}.")
+        lines = na.ScalarArray(np.flatnonzero(where), axes="line")
+        g.append(result.outputs[{"line": lines}].sum("line"))
+
+    g = na.concatenate(g, axis=_axis)
 
     # the emission is isotropic, so the emissivity is spread over the whole
     # sphere, as the radiance of each line is
@@ -284,6 +322,7 @@ def contribution_function(
     return _contribution_function(
         ion=ion,
         wavelength=wavelength,
+        temperature=_temperature_fine(),
         abundance=abundance,
         pressure=pressure,
         chianti_version=version(),
