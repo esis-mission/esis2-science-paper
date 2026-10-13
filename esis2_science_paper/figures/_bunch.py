@@ -112,8 +112,9 @@ def bunch() -> aastex.FigureStar:
 The \numEmissionLines\ brightest emission lines in the \ESISII\ passband, and
 the effective area of a single channel beneath them.
 The lines are computed from version \chiantiVersion\ of the CHIANTI atomic
-database~\citep{Dere1997,DelZanna2021}, using the \citet{Schmelz2012}
-abundances of \chiantiAbundances, the \AR\ \DEM\ file \chiantiDEM, and
-$n_e T = $\,\chiantiPressure."""))
+database~\citep{Dere1997,DelZanna2021}, using the coronal abundances of
+\chiantiAbundances~\citep{Dere2023}, which raise the photospheric abundances
+of \citet{Asplund2021} for the elements of low first ionization potential,
+the \AR\ \DEM\ file \chiantiDEM, and $n_e T = $\,\chiantiPressure."""))
 
     return result

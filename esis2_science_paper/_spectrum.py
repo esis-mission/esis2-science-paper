@@ -21,27 +21,16 @@ __all__ = [
     "version",
 ]
 
-abundance = "sun_coronal_2012_schmelz_ext"
+abundance = "sun_coronal_2021_chianti"
 """
-The abundances of the elements, measured by :cite:t:`Schmelz2012`.
+The abundances of the elements in the corona, as CHIANTI recommends them
+:cite:p:`Dere2023`.
 
-The extended table rather than the one it extends, which is a workaround
-rather than a choice: the two agree exactly on every element in the
-passband, and differ only in the ones too rare to appear here. But
-:func:`fiasco.proton_electron_ratio` sums over every element in the
-database and means to skip the ones an abundance file leaves out:
-
-.. code-block:: python
-
-    try:
-        abundance = el.abundance
-    except KeyError:
-        log.warning(f'Not including {el.atomic_symbol}. ...')
-
-:mod:`fiasco` raises :class:`fiasco.util.exceptions.MissingDatasetException`
-there, which inherits from :class:`Exception` and not from :class:`KeyError`,
-so the guard never fires and the sum dies on the first element the file
-omits, which is lithium. The extended table omits none of them.
+These are the photospheric abundances of :cite:t:`Asplund2021`, with those of
+the elements whose first ionization potential is 10 eV or less raised by a
+factor of :math:`10^{0.5}`, the enhancement typical of active regions. Of the
+elements whose lines are brightest in the passband, that raises magnesium,
+silicon and iron against neon and sulfur.
 """
 
 dem = "active_region.dem"
@@ -141,15 +130,24 @@ def version() -> str:
 def _lines(
     wavelength_min: u.Quantity,
     wavelength_max: u.Quantity,
+    abundance: str,
+    dem: str,
+    pressure: u.Quantity,
     chianti_version: str,
 ) -> na.FunctionArray:
     """
     Compute the lines, and remember them, since it takes several minutes.
 
-    ``chianti_version`` is not read here. It is an argument so that it is part of
-    what the cache is keyed on, since the answer depends on it and nothing
-    else in the key does: :mod:`joblib` hashes the arguments and the source
-    of this function, neither of which knows which database is installed.
+    Everything after the wavelengths is an argument so that it is part of
+    what the cache is keyed on, since the answer depends on all of it:
+    :mod:`joblib` hashes the arguments and the source of this function, and
+    not the values it reads from the rest of the module or from the disk.
+    Were :attr:`abundance` read here rather than passed in, changing it would
+    be answered with the lines computed from the old one.
+
+    ``dem`` and ``chianti_version`` are not read here. :func:`emission_measure`
+    reads the file the one names, and the other is whichever database is
+    installed.
     """
     t = temperature()
     return utu.spectrum.lines(
@@ -178,7 +176,14 @@ def lines(
     wavelength_max
         The longest wavelength to compute.
     """
-    return _lines(wavelength_min, wavelength_max, version())
+    return _lines(
+        wavelength_min=wavelength_min,
+        wavelength_max=wavelength_max,
+        abundance=abundance,
+        dem=dem,
+        pressure=pressure,
+        chianti_version=version(),
+    )
 
 
 @esis.memory.cache
