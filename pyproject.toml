@@ -20,7 +20,7 @@ dependencies = [
     "num2words~=0.5",
     "named-arrays~=2.15",
     "optika~=3.2",
-    "euv-snapshot-imaging-spectrograph @ git+https://github.com/esis-mission/esis.git@bugfix/alsc-oxide",
+    "euv-snapshot-imaging-spectrograph~=1.8",
     "utu~=0.3",
     "fiasco~=0.8.2",
 ]
