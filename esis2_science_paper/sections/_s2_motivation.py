@@ -81,7 +81,8 @@ def motivation() -> aastex.Section:
 \item \NeVII\ \SI{465.2}{\angstrom} and \SiXII\ \SI{499.4}{\angstrom} are an order of magnitude
     brighter than any other line between \SIrange{440}{520}{\angstrom}, so their images do not overlap
     and suffer little contamination (Figure~\ref{fig:bunch}).
-\item \NeVII\ forms in the upper \TR, near \temperatureNeVII, hotter than \SiIV.
+\item \NeVII\ forms in the upper \TR, near \temperatureNeVII, hotter than the \SiIV\ line of
+    \citet{Testa2014}, near \temperatureSiIV\ (Figure~\ref{fig:contribution}).
     \SiXII\ forms in the corona, near \temperatureSiXII, and images the extended loops needed for
     the technology objective.
 \item Does \NeVII\ respond to beams as \SiIV\ does?
@@ -91,10 +92,11 @@ def motivation() -> aastex.Section:
     intensity decays more slowly in the beam case.
 \item Lines between \SIrange{215}{267}{\angstrom} would fall on the passband in second order, so
     the coatings must suppress them (Section~\ref{subsec:MultilayerCoatingsandFilters}).
-\item \textbf{Figures:} the contribution functions of the two lines; the \NeVII\ intensity and
-    line profile versus time for the beam and conduction simulations.
+\item \textbf{Figure:} the \NeVII\ intensity and line profile versus time for the beam and
+    conduction simulations.
 \end{outline}""")
     subsection_passband.append(esis2_science_paper.figures.bunch())
+    subsection_passband.append(esis2_science_paper.figures.contribution())
     result.append(subsection_passband)
 
     subsection_requirements = aastex.Subsection("Requirements")

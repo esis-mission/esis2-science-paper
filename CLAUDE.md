@@ -78,8 +78,9 @@ renders it.
 - **`_variables.py`**: `aastex.Variable` LaTeX macros for every numeric value
   cited in the prose.
 - **`_spectrum.py`**: the CHIANTI spectrum of an active region (via `utu` and
-  `fiasco`) and the effective area of one ESIS-II channel. Both are slow, so
-  both are cached with `esis.memory`, keyed on the CHIANTI, `optika`, and `esis`
+  `fiasco`), the contribution functions of single lines and the temperatures
+  they peak at, and the effective area of one ESIS-II channel. All are slow, so
+  all are cached with `esis.memory`, keyed on the CHIANTI, `optika`, and `esis`
   versions. `joblib` keys only on a function's arguments and source, so pass
   every module-level setting (abundances, DEM, pressure) into a cached function
   rather than reading it there, or changing it serves stale results; CI caches `~/.fiasco` and `~/.esis/cache/esis2_science_paper`.

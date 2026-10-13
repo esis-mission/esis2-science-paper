@@ -1,4 +1,5 @@
 import aastex
+import astropy.units as u
 import num2words
 import pylatex
 
@@ -21,6 +22,22 @@ def _pending(name: str) -> aastex.Variable:
     unresolved cross-reference, which the tests look for.
     """
     return aastex.Variable(name=name, value=aastex.NoEscape(r"\textbf{XX}"))
+
+
+def _temperature_formation(ion: str, wavelength: u.Quantity) -> u.Quantity:
+    """
+    The temperature a line is formed at, in megakelvin, to one significant
+    figure.
+
+    CHIANTI tabulates the ionization fractions a twentieth of a decade
+    apart, and :mod:`fiasco` interpolates between them with a curve which
+    flattens at each extremum, so the peak falls on or beside one of them.
+    That places it to within about six percent, and a second figure would
+    claim more than that.
+    """
+    result = esis2_science_paper._spectrum.temperature_formation(ion, wavelength)
+    result = result.to(u.MK)
+    return float(f"{result.value:.1g}") * u.MK
 
 
 def variables() -> list[aastex.Variable]:
@@ -75,9 +92,29 @@ def variables() -> list[aastex.Variable]:
             name="chiantiVersion",
             value=aastex.NoEscape(esis2_science_paper._spectrum.version()),
         ),
-        # the formation temperatures of the two lines, from CHIANTI
-        _pending("temperatureNeVII"),
-        _pending("temperatureSiXII"),
+        # the temperatures the lines are formed at, the peaks of their
+        # contribution functions
+        aastex.Variable(
+            name="temperatureNeVII",
+            value=_temperature_formation(
+                ion="Ne 7",
+                wavelength=esis2_science_paper._spectrum.wavelength_ne_vii,
+            ),
+        ),
+        aastex.Variable(
+            name="temperatureSiXII",
+            value=_temperature_formation(
+                ion="Si 12",
+                wavelength=esis2_science_paper._spectrum.wavelength_si_xii,
+            ),
+        ),
+        aastex.Variable(
+            name="temperatureSiIV",
+            value=_temperature_formation(
+                ion="Si 4",
+                wavelength=esis2_science_paper._spectrum.wavelength_si_iv,
+            ),
+        ),
         # from the ESIS-II optical model in `esis.flights.f2`
         _pending("fieldOfView"),
         _pending("cadence"),
