@@ -21,7 +21,6 @@ def acronyms() -> list[aastex.Acronym]:
         aastex.Acronym("AR", "active region", short=True, plural=True),
         aastex.Acronym("CTIS", "computed tomography imaging spectrograph", plural=True),
         aastex.Acronym("MART", "multiplicative algebraic reconstruction technique"),
-        aastex.Acronym("CNN", "convolutional neural network", plural=True),
         aastex.Acronym("FOV", "field of view"),
         aastex.Acronym("SNR", "signal-to-noise ratio", short=True),
         aastex.Acronym("DEM", "differential emission measure", plural=True),
