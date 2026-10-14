@@ -28,7 +28,7 @@ Hydrodynamic simulations show that \NeVII\ discriminates between beam and conduc
 passband: a primary mirror with a longer focal length, new gratings, and Al/Sc multilayer coatings,
 and two more channels for a total of six.
 We invert simulated \ESISII\ observations with the multiplicative algebraic reconstruction
-technique and with a convolutional neural network using subsets of the six channels, and find that
+technique using subsets of the six channels, and find that
 \numChannelsRequired\ channels recover the Doppler shifts of extended structures to within
 \velocityError.
 \roy{One sentence on what this means for the flight and for a future orbital CTIS.}

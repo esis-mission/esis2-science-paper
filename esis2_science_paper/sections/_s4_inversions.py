@@ -30,15 +30,13 @@ def inversions() -> aastex.Section:
 \end{outline}""")
     result.append(subsection_data)
 
-    subsection_methods = aastex.Subsection("Inversion Methods")
+    subsection_methods = aastex.Subsection("Inversion Method")
     subsection_methods.append(r"""
 \begin{outline}
 \item \MARTCapital~\citep{Gordon1970}, as applied to \ESISI~\citep[][Appendix~B]{Parker2022}:
     multiplicative updates keep the solution positive and assume no line shape, and regularization
     suppresses the ``plaid'' artifacts along the projection directions.
-\item A \CNN\ trained on \IRIS\ rasters, after Smart et al.\ (2022) \roy{bib entry for the TESS
-    abstract}, retrained on the \ESISII\ forward model.
-\item Both are implemented in \texttt{ctis}.
+\item Implemented in \texttt{ctis}.
 \end{outline}""")
     result.append(subsection_methods)
 
