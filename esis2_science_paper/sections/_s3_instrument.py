@@ -1,5 +1,7 @@
 import aastex
 
+import esis2_science_paper
+
 __all__ = [
     "instrument",
 ]
@@ -49,13 +51,14 @@ def instrument() -> aastex.Section:
     and \citet{Poletto2004}, then optimized for \NeVII\ and \SiXII.
     The gratings are blazed.
 \item \NeVII\ and \SiXII\ fall on opposite sides of the center of each detector without
-    overlapping.
+    overlapping (Figure~\ref{fig:projections}).
 \item The six channels take the azimuths of the six-channel layout for which \ESISI\ was built.
 \item Plate scale, dispersion, and resolution from the raytrace.
 \item \textbf{Table:} the optical prescription.
 \item \textbf{Figures:} the layout of the six channels and their dispersion directions; spot
     diagrams across the \FOV\ at both wavelengths.
 \end{outline}""")
+    subsection_optics.append(esis2_science_paper.figures.field_stop_projections())
     result.append(subsection_optics)
 
     subsection_coatings = aastex.Subsection("Multilayer Coatings and Filters")
