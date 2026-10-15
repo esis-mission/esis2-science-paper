@@ -2,8 +2,8 @@
 
 import aastex
 import astropy.units as u
+import matplotlib.colors
 import matplotlib.pyplot as plt
-import numpy as np
 
 import esis2_science_paper
 
@@ -40,7 +40,8 @@ def synthetic_image() -> aastex.FigureStar:
     # Every pixel of the detector is drawn, rather than resampled to the
     # resolution of the figure.
     mappable = ax.imshow(
-        np.sqrt(np.clip(rate, 0, None)),
+        rate,
+        norm=matplotlib.colors.PowerNorm(gamma=1 / 2, vmin=0),
         origin="lower",
         cmap="afmhot",
         interpolation="none",
@@ -49,7 +50,7 @@ def synthetic_image() -> aastex.FigureStar:
     ax.set_ylabel(f"detector $y$ ({u.pix:latex_inline})")
 
     colorbar = fig.colorbar(mappable, ax=ax, fraction=0.03, pad=0.01)
-    colorbar.set_label(r"$\sqrt{\mathrm{photons\,s^{-1}\,pixel^{-1}}}$")
+    colorbar.set_label(f"photon rate ({u.ph / u.s / u.pix:latex_inline})")
 
     result = aastex.FigureStar("fig:synthetic", position="!htb")
     result.add_fig(fig, width=None)

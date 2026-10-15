@@ -119,8 +119,11 @@ def instrument() -> aastex.Section:
 \item Expected count rates from an \AIA\ \DEM~\citep{Plowman2020} of an example \AR\
     (Figure~\ref{fig:synthetic}), and the \SNR\ of a single exposure across the \FOV.
     \roy{The brightness of \NeVII\ depends on the \DEM\ below $\log T = 5.8$, which \AIA\
-    constrains poorly: this inversion gives \NeVII\ 2.7 times brighter than a demregpy \DEM\ of
-    the same images, while the \SiXII\ lines agree to 1\%.}
+    constrains poorly: this inversion gives \NeVII\ 2.4 times brighter than a demregpy \DEM\ of
+    the same images, while the \SiXII\ lines agree to 7\%.
+    \citet{Vernazza1978} measured \NeVII/\SiXII\ = 1.0 in an active region, against 0.8 from
+    this inversion and 0.3 from demregpy, so this inversion is the closer of the two.
+    Details in esis-mission/esis\#72.}
 \item \textbf{Figure:} the effective area versus wavelength.
 \end{outline}""")
     subsection_area.append(esis2_science_paper.figures.synthetic_image())
