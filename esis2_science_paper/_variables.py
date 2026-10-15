@@ -115,6 +115,21 @@ def variables() -> list[aastex.Variable]:
                 wavelength=esis2_science_paper._spectrum.wavelength_si_iv,
             ),
         ),
+        # the scene of the simulated image
+        aastex.Variable(
+            name="numLinesScene",
+            value=aastex.NoEscape(
+                num2words.num2words(
+                    esis2_science_paper._synthetic.wavelength_synthetic().size
+                )
+            ),
+        ),
+        aastex.Variable(
+            name="fractionLineMin",
+            value=aastex.NoEscape(
+                rf"{100 * esis2_science_paper._synthetic.fraction_min:g}\%"
+            ),
+        ),
         # from the ESIS-II optical model in `esis.flights.f2`
         _pending("fieldOfView"),
         _pending("cadence"),
