@@ -22,15 +22,16 @@ tall, which leaves room beside it for the color bar.
 
 def synthetic_image() -> aastex.FigureStar:
     """
-    A simulated image from one channel of ESIS-II, on a square-root scale.
+    A simulated exposure from one channel of ESIS-II, on a square-root scale.
 
-    The rate at which photons arrive at each pixel of the detector, from the
-    scene of :func:`esis2_science_paper._synthetic.scene_synthetic`.
+    The electrons each pixel of the detector collects in one exposure, with
+    noise, from the scene of
+    :func:`esis2_science_paper._synthetic.scene_synthetic`.
     """
     image = esis2_science_paper._synthetic.image_synthetic()
 
-    rate = image.outputs.to(u.electron / u.s).value
-    rate = rate.ndarray_aligned(("detector_y", "detector_x"))
+    electrons = image.outputs.to(u.electron).value
+    electrons = electrons.ndarray_aligned(("detector_y", "detector_x"))
 
     fig, ax = plt.subplots(
         figsize=(aastex.text_width_inches, _height),
@@ -39,8 +40,10 @@ def synthetic_image() -> aastex.FigureStar:
 
     # Every pixel of the detector is drawn, rather than resampled to the
     # resolution of the figure.
+    # The read noise makes the darkest pixels negative, which the norm
+    # draws as zero.
     mappable = ax.imshow(
-        rate,
+        electrons,
         norm=matplotlib.colors.PowerNorm(gamma=1 / 2, vmin=0),
         origin="lower",
         cmap="afmhot",
@@ -50,13 +53,14 @@ def synthetic_image() -> aastex.FigureStar:
     ax.set_ylabel(f"detector $y$ ({u.pix:latex_inline})")
 
     colorbar = fig.colorbar(mappable, ax=ax, fraction=0.03, pad=0.01)
-    colorbar.set_label(f"photon rate ({u.ph / u.s / u.pix:latex_inline})")
+    colorbar.set_label(f"signal ({u.electron:latex_inline})")
 
     result = aastex.FigureStar("fig:synthetic", position="!htb")
     result.add_fig(fig, width=None)
     result.add_caption(aastex.NoEscape(r"""
-A simulated image from one channel of \ESISII, in photons per second arriving at
-each pixel of the \CCD, on a square-root scale.
+A simulated \timeExposure\ exposure from one channel of \ESISII, in the electrons
+collected by each pixel of the \CCD, on a square-root scale, with the shot noise of
+the photons and the read noise of the camera.
 The scene is the active regions NOAA 12565 and 12567 at 00:00~UT on 2016 July 15:
 the \DEM\ of each \AIA\ pixel, inverted from the six optically thin \EUV\ channels
 with the method of \citet{Plowman2020}, and the \numLinesScene\ lines of the

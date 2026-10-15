@@ -1,5 +1,6 @@
 import aastex
 import astropy.units as u
+import esis
 import num2words
 import pylatex
 
@@ -131,6 +132,12 @@ def variables() -> list[aastex.Variable]:
             ),
         ),
         # from the ESIS-II optical model in `esis.flights.f2`
+        aastex.Variable(
+            name="timeExposure",
+            value=esis.flights.f2.optics.design_single(
+                num_distribution=0,
+            ).camera.timedelta_exposure,
+        ),
         _pending("fieldOfView"),
         _pending("cadence"),
         # from the inversions of the test data

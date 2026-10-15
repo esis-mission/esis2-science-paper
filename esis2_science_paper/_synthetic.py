@@ -5,7 +5,6 @@ import importlib.metadata
 import astropy.units as u
 import esis
 import named_arrays as na
-import optika
 
 import esis2_science_paper
 
@@ -61,7 +60,7 @@ def _synthetic(
     versions: dict[str, str],
 ) -> tuple[na.FunctionArray, na.AbstractScalar]:
     """
-    Compute and remember the simulated image and the lines it is made of.
+    Compute and remember the simulated exposure and the lines it is made of.
 
     It takes minutes, mostly imaging the lines one by one.
 
@@ -73,36 +72,44 @@ def _synthetic(
     scene = scene_synthetic()
 
     instrument = esis.flights.f2.optics.design_single(num_distribution=0)
-    system = instrument.system
-    system.sensor.material = optika.sensors.materials.IdealSensorMaterial()
-    system.sensor.timedelta_exposure = 1 * u.s
+
+    # One linear approximation of the instrument across the whole passband,
+    # sampled about every angstrom. A cubic distortion puts every line within
+    # a few hundredths of a pixel of where a fit to that line alone puts it.
+    linear = instrument.system.linearize(
+        wavelength=na.linspace(
+            start=instrument.wavelength_min,
+            stop=instrument.wavelength_max,
+            axis="_wavelength",
+            num=105,
+        ),
+        degree=2,
+        degree_distortion=3,
+    )
 
     rest = scene.inputs.wavelength_rest
 
-    rate = 0
+    # The lines are imaged one at a time, since the regridding weights take
+    # a few gigabytes per line, too many for all of them at once. Each is
+    # exposed with its own shot noise but not integrated over wavelength,
+    # which would add the read noise once per line rather than once for the
+    # single readout of the sensor.
+    electrons = 0
     for i in range(rest.shape["line"]):
-        index = {"line": i}
-        w = rest[index]
-
-        # The fits of the linear system are polynomials in wavelength, so
-        # each line is linearized on its own, over a couple of angstroms.
-        linear = system.linearize(
-            wavelength=na.linspace(w - 1 * u.AA, w + 1 * u.AA, axis="_w", num=5),
-            degree=2,
-        )
-
         image = linear.image(
-            scene=scene[index],
+            scene=scene[{"line": i}],
             axis_wavelength="velocity",
             axis_field=(_axis_x, _axis_y),
-            noise=False,
+            integrate=False,
         )
+        electrons = electrons + image.outputs.sum("velocity")
 
-        rate = rate + image.outputs / system.sensor.timedelta_exposure
+    # the single readout of the sensor
+    electrons = na.random.normal(loc=electrons, scale=linear.sensor.read_noise)
 
     result = na.FunctionArray(
-        inputs=image.inputs,
-        outputs=rate.to(u.electron / u.s),
+        inputs=image.inputs.position,
+        outputs=electrons.to(u.electron),
     )
 
     return result, rest
@@ -110,13 +117,13 @@ def _synthetic(
 
 def image_synthetic() -> na.FunctionArray:
     """
-    A simulated image from one channel of ESIS-II.
+    A simulated exposure from one channel of ESIS-II.
 
     The scene of :func:`scene_synthetic` imaged through a linear
     approximation of :func:`esis.flights.f2.optics.design_single`, line by
-    line, with no noise. The sensor is ideal, counting one electron for
-    every photon which reaches it, so the result is the rate at which
-    photons arrive at each pixel.
+    line, onto its sensor for one exposure of its camera. The result is the
+    electrons each pixel collects, with the shot noise of every line and the
+    read noise of the readout.
     """
     image, _ = _cached()
     return image
