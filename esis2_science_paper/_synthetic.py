@@ -30,6 +30,7 @@ detector it is imaged onto, so that the two cannot be confused.
 
 _packages = [
     "euv-snapshot-imaging-spectrograph",
+    "msfc-ccd",
     "optika",
     "named-arrays",
     "utu",
