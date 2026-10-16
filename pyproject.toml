@@ -20,8 +20,8 @@ dependencies = [
     "num2words~=0.5",
     "named-arrays~=2.15",
     "optika~=3.2",
-    "euv-snapshot-imaging-spectrograph~=1.8",
-    "utu~=0.3",
+    "euv-snapshot-imaging-spectrograph~=1.9",
+    "utu~=0.4",
     "fiasco~=0.8.2",
 ]
 dynamic = ["version"]

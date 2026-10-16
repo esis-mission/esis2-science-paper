@@ -81,15 +81,20 @@ jobs:
           print(f'optika={version(\"optika\")}')
           print(f'esis={version(\"euv-snapshot-imaging-spectrograph\")}')
           " >> $GITHUB_OUTPUT
+      # The simulated image is remembered in the same place, and the
+      # contribution functions of its scene by `esis`, which take a quarter
+      # of an hour of their own.
       - name: Restore the spectrum computed from it
         uses: actions/cache@v4
         with:
-          path: ~/.esis/cache/esis2_science_paper
+          path: |
+            ~/.esis/cache/esis2_science_paper
+            ~/.esis/cache/esis/data/synth/_scene_dem
           key: >-
             spectrum-${{ steps.chianti.outputs.version }}-${{
             steps.versions.outputs.optika }}-${{
             steps.versions.outputs.esis }}-${{
-            hashFiles('esis2_science_paper/_spectrum.py') }}
+            hashFiles('esis2_science_paper/_spectrum.py', 'esis2_science_paper/_synthetic.py') }}
           # An older spectrum is worth restoring even when this module or
           # those versions have changed, since `joblib` decides for itself
           # whether what it holds still answers the question, and recomputes

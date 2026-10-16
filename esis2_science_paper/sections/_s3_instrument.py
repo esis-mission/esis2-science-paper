@@ -116,10 +116,17 @@ def instrument() -> aastex.Section:
 \item Effective area from the geometric area, the reflectance of the two coatings, the groove
     efficiency, the filter transmission, and the \QE\ of the \CCD, compared with the requirement of
     Section~\ref{subsec:Requirements}.
-\item Expected count rates from an \AIA\ \DEM~\citep{Cheung2015} of an example \AR, and the \SNR\
-    of a single exposure across the \FOV.
-\item \textbf{Figures:} the effective area versus wavelength; a simulated image from one channel.
+\item Expected count rates from an \AIA\ \DEM~\citep{Plowman2020} of an example \AR\
+    (Figure~\ref{fig:synthetic}), and the \SNR\ of a single exposure across the \FOV.
+    \roy{The brightness of \NeVII\ depends on the \DEM\ below $\log T = 5.8$, which \AIA\
+    constrains poorly: this inversion gives \NeVII\ 2.4 times brighter than a demregpy \DEM\ of
+    the same images, while the \SiXII\ lines agree to 7\%.
+    \citet{Vernazza1978} measured \NeVII/\SiXII\ = 1.0 in an active region, against 0.8 from
+    this inversion and 0.3 from demregpy, so this inversion is the closer of the two.
+    Details in esis-mission/esis\#72.}
+\item \textbf{Figure:} the effective area versus wavelength.
 \end{outline}""")
+    subsection_area.append(esis2_science_paper.figures.synthetic_image())
     result.append(subsection_area)
 
     subsection_operations = aastex.Subsection("Concept of Operations")
