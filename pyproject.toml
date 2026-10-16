@@ -20,10 +20,8 @@ dependencies = [
     "num2words~=0.5",
     "named-arrays~=2.15",
     "optika~=3.2",
-    # TEMPORARY: esis.flights.f2.data.synth.scene_dem (esis-mission/esis#109),
-    # until it is released
-    "euv-snapshot-imaging-spectrograph @ git+https://github.com/esis-mission/esis.git@feature/scene-dem",
-    "utu~=0.3",
+    "euv-snapshot-imaging-spectrograph~=1.9",
+    "utu~=0.4",
     "fiasco~=0.8.2",
 ]
 dynamic = ["version"]
