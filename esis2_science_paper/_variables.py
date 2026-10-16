@@ -131,6 +131,10 @@ def variables() -> list[aastex.Variable]:
                 rf"{100 * esis2_science_paper._synthetic.fraction_min:g}\%"
             ),
         ),
+        aastex.Variable(
+            name="sizeBlock",
+            value=esis2_science_paper._synthetic.size_block,
+        ),
         # from the ESIS-II optical model in `esis.flights.f2`
         aastex.Variable(
             name="timeExposure",
