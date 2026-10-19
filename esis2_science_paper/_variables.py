@@ -50,10 +50,20 @@ def variables() -> list[aastex.Variable]:
     """
     return [
         aastex.Variable(
-            # the number of emission lines drawn in the bunch figure
+            # the number of emission lines the bunch figure labels by their
+            # radiance, and again by the light they put on the detector
             name="numEmissionLines",
             value=aastex.NoEscape(
                 num2words.num2words(esis2_science_paper.figures.num_emission_lines)
+            ),
+        ),
+        aastex.Variable(
+            # the number of emission lines drawn in the bunch figure
+            name="numLinesLabeled",
+            value=aastex.NoEscape(
+                num2words.num2words(
+                    esis2_science_paper.figures.lines_labeled().shape["line"]
+                )
             ),
         ),
         aastex.Variable(

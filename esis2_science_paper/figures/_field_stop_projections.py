@@ -36,10 +36,13 @@ of the ESIS-I instrument paper.
 def field_stop_projections() -> aastex.Figure:
     """
     The image of the field stop on the detector of a single channel, at each
-    of the brightest lines in the passband.
+    of the lines which put the most light on it.
 
-    The lines are the ones the passband figure labels, so that the two figures
-    name the same lines. The field stop is ahead of the grating, so its
+    The lines are those of :func:`esis2_science_paper.figures.lines_detected`,
+    which the passband figure labels too, so that the two figures name the
+    same lines. The bright lines at the short end of the passband are left
+    out, since the coatings reflect little of them. The field stop is ahead of
+    the grating, so its
     outline in field angles is the same at every wavelength, and the grating
     moves its image along the dispersion as the wavelength changes.
     """
@@ -47,18 +50,12 @@ def field_stop_projections() -> aastex.Figure:
     system = optics.system
     sensor = system.sensor
 
-    # the same arguments as the passband figure, which keeps the two lists of
-    # lines the same and reads them from the same cache
-    lines = esis2_science_paper.lines(
-        wavelength_min=optics.wavelength_min.to(u.AA).ndarray,
-        wavelength_max=optics.wavelength_max.to(u.AA).ndarray,
-    )
-    num = esis2_science_paper.figures.num_emission_lines
-    brightest = lines[{"line": slice(num)}]
+    lines = esis2_science_paper.figures.lines_detected()
+    num = lines.shape["line"]
 
-    wavelength = brightest.inputs.components["wavelength"]
+    wavelength = lines.inputs.components["wavelength"]
     names = utu.spectrum.spectroscopic(
-        ion=brightest.inputs.components["ion"],
+        ion=lines.inputs.components["ion"],
         latex=True,
     )
 
@@ -106,7 +103,8 @@ def field_stop_projections() -> aastex.Figure:
     result.add_fig(fig, width=None)
     result.add_caption(aastex.NoEscape(r"""
 The image of the field stop on the detector of a single \ESISII\ channel, at
-each of the \numEmissionLines\ lines of Figure~\ref{fig:bunch}.
+each of the \numEmissionLines\ lines of Figure~\ref{fig:bunch} which put the
+most light on the detector.
 The axes span the active area of the \CCD."""))
 
     return result
