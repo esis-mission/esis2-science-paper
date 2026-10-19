@@ -14,14 +14,22 @@ __all__ = [
     "field_stop_projections",
 ]
 
-_height = 2.85
+_height = 3.0
 """
-The height of the figure in inches, about the least which keeps the legend
-clear of the label of the :math:`x` axis.
+The height of the figure in inches.
 
 Its width is the width of a column, and the detector is twice as wide as it
-is tall, which leaves room beneath it for the legend. The ESIS-I instrument
-paper's 3 inches left a band empty above the plot.
+is tall, which leaves room beneath it for the legend. This is enough for the
+padding of :data:`_pad` as well, so the plot still spans the column; any
+taller leaves a band empty above it.
+"""
+
+_pad = 8 / 72
+"""
+The padding around each element of the figure in inches, eight points, which
+sets the gap between the label of the :math:`x` axis and the legend.
+
+The default of three points left the legend nearly touching the label.
 """
 
 _colormap = "turbo"
@@ -77,6 +85,7 @@ def field_stop_projections() -> aastex.Figure:
         figsize=(aastex.column_width_inches, _height),
         constrained_layout=True,
     )
+    fig.get_layout_engine().set(h_pad=_pad)
 
     for color, index in zip(colors, order):
         i = {"line": int(index)}
