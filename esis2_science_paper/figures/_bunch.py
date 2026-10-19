@@ -12,7 +12,6 @@ import esis2_science_paper
 __all__ = [
     "bunch",
     "lines_detected",
-    "lines_labeled",
     "num_emission_lines",
 ]
 
@@ -20,10 +19,7 @@ _num_wavelength = 51
 """The number of wavelengths at which the effective area is computed."""
 
 num_emission_lines = 8
-"""
-The number of emission lines to label by their radiance, and again by the
-light they put on the detector.
-"""
+"""The number of emission lines to label."""
 
 _color_area = "red"
 """The colour of the effective area curve."""
@@ -52,21 +48,22 @@ def _wavelength() -> na.AbstractScalar:
     )
 
 
-def _lines() -> na.FunctionArray:
-    """Every line of the passband, brightest first."""
+def lines_detected() -> na.FunctionArray:
+    """
+    The :data:`num_emission_lines` lines of the passband which put the most
+    light on the detector, most first.
+
+    Their radiance times the effective area at their wavelength is greatest.
+    The coatings reflect little at the short end of the passband, so some of
+    its brightest lines are hardly detected, while fainter lines near the peak
+    of the effective area are among the brightest in a simulated image.
+    """
     wavelength_min, wavelength_max = _passband()
-    return esis2_science_paper.lines(
+    lines = esis2_science_paper.lines(
         wavelength_min=wavelength_min,
         wavelength_max=wavelength_max,
     )
 
-
-def _index_detected(lines: na.FunctionArray) -> np.ndarray:
-    """
-    The indices of the :data:`num_emission_lines` of ``lines`` which put the
-    most light on the detector, whose radiance times the effective area at
-    their wavelength is greatest, in order of radiance.
-    """
     wavelength = _wavelength()
     area = esis2_science_paper._spectrum.area_effective(wavelength)
 
@@ -80,64 +77,33 @@ def _index_detected(lines: na.FunctionArray) -> np.ndarray:
     )
 
     signal = lines.outputs * area_line
-    index = np.argsort(-signal, axis="line")["line"]
-    index = index[{"line": slice(num_emission_lines)}]
+    index = np.argsort(-signal, axis="line")
+    index = index["line"][{"line": slice(num_emission_lines)}]
 
-    # the lines are in order of radiance, and so are their sorted indices
-    return np.sort(index.ndarray)
-
-
-def lines_detected() -> na.FunctionArray:
-    """
-    The :data:`num_emission_lines` lines of the passband which put the most
-    light on the detector, brightest first.
-
-    Their radiance times the effective area at their wavelength is greatest.
-    The coatings reflect little at the short end of the passband, so some of
-    its brightest lines are hardly detected, while fainter lines near the peak
-    of the effective area are among the brightest in a simulated image.
-    """
-    lines = _lines()
-    index = _index_detected(lines)
-    return lines[{"line": na.ScalarArray(index, axes="line")}]
-
-
-def lines_labeled() -> na.FunctionArray:
-    """
-    The lines the passband figure draws and labels, brightest first.
-
-    The :data:`num_emission_lines` brightest lines of the passband, and those
-    of :func:`lines_detected`.
-    """
-    lines = _lines()
-
-    # The lines are in order of radiance, so the brightest are the first few,
-    # and the sorted indices of every line keep that order.
-    index = np.union1d(np.arange(num_emission_lines), _index_detected(lines))
-
-    return lines[{"line": na.ScalarArray(index, axes="line")}]
+    return lines[{"line": index}]
 
 
 def bunch() -> aastex.FigureStar:
     r"""
-    The brightest lines in the passband, and the effective area beneath them.
+    The lines which put the most light on the detector, and the effective
+    area beneath them.
 
     The lines are computed from the CHIANTI atomic database for an active
     region, and the effective area from the instrument model with the
     apertures of the filter and the sensor opened, so that the curve is the
     response of the coatings and the filter rather than a map of where the
-    light happens to land. The lines are those of :func:`lines_labeled`.
+    light happens to land. The lines are those of :func:`lines_detected`.
     """
     wavelength_min, wavelength_max = _passband()
 
     wavelength = _wavelength()
     area = esis2_science_paper._spectrum.area_effective(wavelength)
 
-    brightest = lines_labeled()
+    detected = lines_detected()
 
     # the emission is isotropic, so the radiance is the intensity spread over
     # the whole sphere
-    radiance = brightest.outputs / (4 * np.pi * u.sr)
+    radiance = detected.outputs / (4 * np.pi * u.sr)
     radiance = radiance.to(u.erg / u.s / u.cm**2 / u.sr)
 
     fig, ax = plt.subplots(
@@ -187,23 +153,27 @@ def bunch() -> aastex.FigureStar:
     # another and on the frame.
     fig.draw_without_rendering()
 
+    # Each label starts at its line and runs to the right. Fe XIV 467.4 is
+    # faint and only two angstroms from Ne VII 465.2, so a label centered on
+    # it covers the line of Ne VII, and is pushed across it. Starting at the
+    # line, the labels of neighbors stack above one another instead of side
+    # by side, so they need more room above than beside.
     utu.spectrum.stem(
-        spectrum=na.FunctionArray(inputs=brightest.inputs, outputs=radiance),
+        spectrum=na.FunctionArray(inputs=detected.inputs, outputs=radiance),
         ax=ax,
         latex=True,
         headroom=_headroom,
-        kwargs_text={"fontsize": 6},
+        kwargs_text={"fontsize": 6, "ha": "left"},
+        kwargs_adjust={"expand": (1.3, 2.0)},
     )
 
     result = aastex.FigureStar("fig:bunch", position="!htb")
     result.append(aastex.NoEscape(r"\centering"))
     result.add_fig(fig, width=aastex.NoEscape(r"\textwidth"))
     result.add_caption(aastex.NoEscape(r"""
-The \numLinesLabeled\ emission lines of the \ESISII\ passband which are
-brightest or put the most light on the detector, and the effective area of a
-single channel beneath them.
-They are the \numEmissionLines\ lines of greatest radiance and the
-\numEmissionLines\ of greatest radiance times effective area.
+The \numEmissionLines\ emission lines which put the most light on the
+detector of \ESISII, those whose radiance times the effective area is
+greatest, and the effective area of a single channel beneath them.
 The lines are computed from version \chiantiVersion\ of the CHIANTI atomic
 database~\citep{Dere1997,DelZanna2021}, using the coronal abundances of
 \chiantiAbundances~\citep{Dere2023}, which raise the photospheric abundances

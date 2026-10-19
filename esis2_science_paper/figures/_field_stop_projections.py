@@ -38,11 +38,9 @@ def field_stop_projections() -> aastex.Figure:
     The image of the field stop on the detector of a single channel, at each
     of the lines which put the most light on it.
 
-    The lines are those of :func:`esis2_science_paper.figures.lines_detected`,
-    which the passband figure labels too, so that the two figures name the
-    same lines. The bright lines at the short end of the passband are left
-    out, since the coatings reflect little of them. The field stop is ahead of
-    the grating, so its
+    The lines are the ones the passband figure labels, those of
+    :func:`esis2_science_paper.figures.lines_detected`, so that the two
+    figures name the same lines. The field stop is ahead of the grating, so its
     outline in field angles is the same at every wavelength, and the grating
     moves its image along the dispersion as the wavelength changes.
     """
@@ -103,8 +101,7 @@ def field_stop_projections() -> aastex.Figure:
     result.add_fig(fig, width=None)
     result.add_caption(aastex.NoEscape(r"""
 The image of the field stop on the detector of a single \ESISII\ channel, at
-each of the \numEmissionLines\ lines of Figure~\ref{fig:bunch} which put the
-most light on the detector.
+each of the \numEmissionLines\ lines of Figure~\ref{fig:bunch}.
 The axes span the active area of the \CCD."""))
 
     return result
