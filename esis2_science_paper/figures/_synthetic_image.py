@@ -99,9 +99,13 @@ The scene is the active regions NOAA 12565 and 12567 at 00:00~UT on 2016 July 15
 the \DEM\ of each \AIA\ pixel, inverted from the six optically thin \EUV\ channels
 with the method of \citet{Plowman2020}, and the \numLinesScene\ lines of the
 passband which carry at least \fractionLineMin\ of its radiance, at rest.
-The images of \NeVII\ and \SiXII\ fall on either side of the center, the weaker
-\SiXII\ line clips the right edge, and lines of \MgVII\ and \MgVIII\ clip the
-left.
+The images of \NeVII\ and \SiXII\ fall on either side of the center.
+The fainter images around them are of \FeXIV, almost on top of \NeVII; of \FeXV,
+\NeV, and \FeXIII\ across the center; and of a second line of \FeXIII\ and the
+weaker line of \SiXII, which clip the right edge.
+The lines of \MgVII\ and \MgVIII\ at the short end of the passband put almost no
+light on the detector, since the coatings reflect little there, and their images
+fall mostly off its left edge.
 Below, on a logarithmic scale, the \SNR\ of each resolution element, a block of
 $\sizeBlock \times \sizeBlock$ pixels: the electrons it collects on average, over the
 standard deviation of the noise of their sum, from the shot noise of the photons it

@@ -31,9 +31,13 @@ def preamble() -> list[pylatex.base_classes.LatexObject]:
         # as the name.
         pylatex.NoEscape(r"\newcommand{\ESISI}{\mbox{ESIS-I}}"),
         pylatex.NoEscape(r"\newcommand{\ESISII}{\mbox{ESIS-II}}"),
+        pylatex.NoEscape(r"\newcommand{\FeXIII}{Fe\,\textsc{xiii}}"),
+        pylatex.NoEscape(r"\newcommand{\FeXIV}{Fe\,\textsc{xiv}}"),
+        pylatex.NoEscape(r"\newcommand{\FeXV}{Fe\,\textsc{xv}}"),
         pylatex.NoEscape(r"\newcommand{\HeII}{He\,\textsc{ii}}"),
         pylatex.NoEscape(r"\newcommand{\MgVII}{Mg\,\textsc{vii}}"),
         pylatex.NoEscape(r"\newcommand{\MgVIII}{Mg\,\textsc{viii}}"),
+        pylatex.NoEscape(r"\newcommand{\NeV}{Ne\,\textsc{v}}"),
         pylatex.NoEscape(r"\newcommand{\NeVII}{Ne\,\textsc{vii}}"),
         pylatex.NoEscape(r"\newcommand{\OV}{O\,\textsc{v}}"),
         pylatex.NoEscape(r"\newcommand{\SiIV}{Si\,\textsc{iv}}"),
