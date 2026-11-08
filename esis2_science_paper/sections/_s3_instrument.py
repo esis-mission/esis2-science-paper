@@ -29,7 +29,7 @@ def instrument() -> aastex.Section:
     subsection_changes.append(r"""
 \begin{outline}
 \item \textbf{New:} the passband; a primary mirror with a longer focal length, which uses the full
-    length of the optical table now that \MOSES\ is gone from it; new gratings; Al/Sc multilayer
+    length of the optical table now that \MOSES\ is gone from it; new gratings; Si/Sc multilayer
     coatings; two more channels; filters moved to suit the slower beam; the telemetry interface
     (\EVTM).
 \item \textbf{Reused:} the cameras of \ESISI, the \DACS, and the ground support equipment.
@@ -67,12 +67,18 @@ def instrument() -> aastex.Section:
 \item The primary mirror and the gratings both need multilayers which reflect \NeVII\ and \SiXII\
     well and suppress \SIrange{215}{267}{\angstrom}, which would otherwise reach the detector in
     second order.
-\item Al/Sc multilayers~\citep{Rebellato2020,Rebellato2021} on both, compared with the Si/Sc
-    alternative used for \NeVII\ by \SUTRI~\citep{Bai2023,Wu2022}.
-    Designs modeled with IMD~\citep{Windt1998}, and the reflectance of witness samples.
+\item Si/Sc multilayers on both, the coating \SUTRI\ flew for \NeVII~\citep{Bai2023,Wu2022},
+    compared with the Al/Sc alternative~\citep{Rebellato2020,Rebellato2021}, which reflects less
+    with the same interfaces and number of periods, mostly at \SiXII.
+\item \numPeriodsCoating\ periods, to keep the coating thin.
+    \roy{More periods would reflect more, if a thicker coating is not more likely to fail.}
+\item The model of the coating follows a test sample of Si/Sc whose reflectance E.~Gullikson of
+    \LBNL\ measured at beamline 6.3.2 of the Advanced Light Source: amorphous Si, a native oxide
+    on the top layer, and the widths of the interfaces fitted to the measurement.
+    The reflectance of witness samples of the flight coatings, once they are made.
 \item Filters: the \ESISI\ design, with the transmission modeled including an oxide layer.
 \item \textbf{Figure:} the reflectance of the coatings and the transmission of the filters versus
-    wavelength.
+    wavelength, and the measured reflectance of the test sample with the fit.
 \end{outline}""")
     result.append(subsection_coatings)
 

@@ -37,11 +37,13 @@ def preamble() -> list[pylatex.base_classes.LatexObject]:
         pylatex.NoEscape(r"\newcommand{\HeII}{He\,\textsc{ii}}"),
         pylatex.NoEscape(r"\newcommand{\MgVII}{Mg\,\textsc{vii}}"),
         pylatex.NoEscape(r"\newcommand{\MgVIII}{Mg\,\textsc{viii}}"),
+        pylatex.NoEscape(r"\newcommand{\MgIX}{Mg\,\textsc{ix}}"),
         pylatex.NoEscape(r"\newcommand{\NeV}{Ne\,\textsc{v}}"),
         pylatex.NoEscape(r"\newcommand{\NeVII}{Ne\,\textsc{vii}}"),
         pylatex.NoEscape(r"\newcommand{\OV}{O\,\textsc{v}}"),
         pylatex.NoEscape(r"\newcommand{\SiIV}{Si\,\textsc{iv}}"),
         pylatex.NoEscape(r"\newcommand{\SiXII}{Si\,\textsc{xii}}"),
+        pylatex.NoEscape(r"\newcommand{\SXIV}{S\,\textsc{xiv}}"),
         pylatex.NoEscape(r"\newcommand{\ie}{i.e.}"),
         pylatex.NoEscape(r"\newcommand{\eg}{e.g.}"),
         # A colored comment macro for each author.

@@ -25,7 +25,7 @@ view every \cadence.
 Hydrodynamic simulations show that \NeVII\ discriminates between beam and conductive heating, while
 \SiXII\ images extended coronal loops, the structures that are hardest for a CTIS to invert.
 \ESISII\ reuses the cameras and avionics of the first flight, with new optics for the new
-passband: a primary mirror with a longer focal length, new gratings, and Al/Sc multilayer coatings,
+passband: a primary mirror with a longer focal length, new gratings, and Si/Sc multilayer coatings,
 and two more channels for a total of six.
 We invert simulated \ESISII\ observations with the multiplicative algebraic reconstruction
 technique using subsets of the six channels, and find that
