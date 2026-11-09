@@ -2,6 +2,7 @@ import aastex
 import astropy.units as u
 import esis
 import num2words
+import optika
 import pylatex
 
 import esis2_science_paper
@@ -39,6 +40,23 @@ def _temperature_formation(ion: str, wavelength: u.Quantity) -> u.Quantity:
     result = esis2_science_paper._spectrum.temperature_formation(ion, wavelength)
     result = result.to(u.MK)
     return float(f"{result.value:.1g}") * u.MK
+
+
+def _num_periods(multilayer: optika.materials.MultilayerMirror) -> int:
+    """
+    The number of periods of a Si/Sc multilayer, counted as its Sc layers.
+
+    :mod:`esis` builds the top period apart from the others, since its Si layer
+    is under a native oxide, so the periods are counted rather than read from
+    the :class:`optika.materials.PeriodicLayerSequence` of the rest.
+    """
+    result = 0
+    for layer in multilayer.layers:
+        if isinstance(layer, optika.materials.PeriodicLayerSequence):
+            result += layer.num_periods * _num_periods(layer)
+        elif layer.chemical == "Sc":
+            result += 1
+    return result
 
 
 def variables() -> list[aastex.Variable]:
@@ -141,6 +159,16 @@ def variables() -> list[aastex.Variable]:
             value=esis.flights.f2.optics.design_single(
                 num_distribution=0,
             ).camera.timedelta_exposure,
+        ),
+        aastex.Variable(
+            # the number of periods of the coating of the primary mirror and
+            # of the gratings, capitalized since it begins a bullet
+            name="numPeriodsCoating",
+            value=aastex.NoEscape(
+                num2words.num2words(
+                    _num_periods(esis.flights.f2.optics.materials.multilayer_SiSc())
+                ).capitalize()
+            ),
         ),
         _pending("fieldOfView"),
         _pending("cadence"),
