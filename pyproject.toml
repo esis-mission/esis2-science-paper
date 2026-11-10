@@ -20,7 +20,7 @@ dependencies = [
     "num2words~=0.5",
     "named-arrays~=2.15",
     "optika~=3.9",
-    "euv-snapshot-imaging-spectrograph~=1.11",
+    "euv-snapshot-imaging-spectrograph~=1.12",
     "utu~=0.4",
     "fiasco~=0.8.2",
 ]
