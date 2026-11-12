@@ -106,13 +106,14 @@ esis2_science_paper.export("path/to/overleaf")
 | `generated/<figure>.pdf` | every release | the image of each figure |
 | `aastex701.cls`, `aasjournalv7.bst`, `orcid-ID.png` | every release | the AASTeX class files |
 | `esis2-science.tex` | once | the main file: the preamble, title, authors, and keywords |
-| `sections/<name>.tex` | once | each section, with its figures and their captions |
+| `acronyms.tex` | once | the acronyms, with an example of how to add one |
+| `sections/00_abstract.tex`, `01_introduction.tex`, ... | once | each section, numbered in reading order, with its figures and their captions |
 | `sources.bib` | once | the bibliography |
 
 The files written once seed a project which does not have
 `esis2-science.tex` yet, and are never written again, so from then on the
-prose, the captions, the macros of the preamble, and the bibliography belong
-to Overleaf. Edit them there: a change to the prose in this repository does
+prose, the captions, the acronyms, the macros of the preamble, and the
+bibliography belong to Overleaf. Edit them there: a change to the prose in this repository does
 not reach the manuscript once it is seeded. Everything in `generated/` is
 replaced on every delivery, so it is the one part of the manuscript not to
 edit by hand. A number the prose cites, or a figure, is changed here and
@@ -136,6 +137,10 @@ The project is cloned fresh every time, since Overleaf refuses a push that
 is not a fast-forward. After the first delivery seeds it, set its main
 document to `esis2-science.tex` (Menu, then Main document), and delete the
 `main.tex` a new Overleaf project starts with.
+
+To seed the project again, which discards every edit to the prose, delete
+`esis2-science.tex`, `acronyms.tex`, `sections/`, and `sources.bib` in
+Overleaf, and run the workflow by hand.
 
 ## Commenting on the draft
 

@@ -9,16 +9,18 @@ import pytest
 import esis2_science_paper
 from esis2_science_paper._export import _export
 
-_names = ("abstract", "introduction")
+_names = ("00_abstract", "01_introduction")
 """The names of the files of the sections of :func:`_document`."""
 
 
 def _document(labels: tuple[str, ...] = ("fig:test",)) -> aastex.Document:
     """
-    A small article in the form of this one: an abstract, and a section
-    holding a figure for each label whose caption cites a number.
+    A small article in the form of this one: two acronyms, an abstract, and a
+    section holding a figure for each label whose caption cites a number.
     """
     result = aastex.Document()
+    result.preamble.append(aastex.Acronym("CTIS", "computed tomography", plural=True))
+    result.preamble.append(aastex.Acronym("EUV", "extreme ultraviolet"))
     result.variables.append(aastex.Variable(name="cadence", value=2 * u.s))
     result.append(aastex.Title("A Test"))
 
@@ -53,16 +55,21 @@ def test_export_seed(tmp_path: pathlib.Path) -> None:
 
     main = (tmp_path / esis2_science_paper.filename_main).read_text("utf-8")
     assert r"\input{generated/variables}" in main
-    assert r"\input{sections/abstract}" in main
-    assert r"\input{sections/introduction}" in main
+    assert r"\input{sections/00_abstract}" in main
+    assert r"\input{sections/01_introduction}" in main
     assert r"\newcommand{\cadence}" not in main
+    assert r"\input{acronyms}" in main
+    assert r"\newacro" not in main
+    # the packages of the parts moved into their own files are still loaded
+    assert r"\usepackage{acronym}" in main
+    assert r"\usepackage{graphicx}" in main
     assert r"\bibliography{sources}" in main
 
     sections = tmp_path / esis2_science_paper.directory_sections
-    abstract = (sections / "abstract.tex").read_text("utf-8")
+    abstract = (sections / "00_abstract.tex").read_text("utf-8")
     assert r"An abstract citing \cadence." in abstract
 
-    introduction = (sections / "introduction.tex").read_text("utf-8")
+    introduction = (sections / "01_introduction.tex").read_text("utf-8")
     assert r"\section{Introduction}" in introduction
     assert r"\includegraphics{generated/test.pdf}" in introduction
     assert r"A caption citing \cadence." in introduction
@@ -72,6 +79,15 @@ def test_export_seed(tmp_path: pathlib.Path) -> None:
     assert (generated / "README.md").exists()
     variables = (generated / esis2_science_paper.filename_variables).read_text("utf-8")
     assert r"\newcommand{\cadence}" in variables
+
+    path = tmp_path / esis2_science_paper.filename_acronyms
+    acronyms = path.read_text("utf-8")
+    assert "To add one" in acronyms
+    # the example in the header is commented out
+    assert acronyms.count("\n" + r"\newacro{") == 2
+    # each macro is on a line of its own, without pylatex's trailing `%`
+    assert "\n" + r"\newcommand{\CTISs}{\acp{CTIS}}" + "\n" in acronyms
+    assert "%" not in acronyms.split(r"\newacro{CTIS}")[1]
 
     assert (tmp_path / "sources.bib").exists()
     assert (tmp_path / "aastex701.cls").exists()
@@ -87,7 +103,7 @@ def test_export_keeps_prose(tmp_path: pathlib.Path) -> None:
     main = tmp_path / esis2_science_paper.filename_main
     main.write_text("the main file as the authors left it", encoding="utf-8")
 
-    section = tmp_path / esis2_science_paper.directory_sections / "introduction.tex"
+    section = tmp_path / esis2_science_paper.directory_sections / "01_introduction.tex"
     section.parent.mkdir()
     section.write_text("an edited section", encoding="utf-8")
 
@@ -99,7 +115,8 @@ def test_export_keeps_prose(tmp_path: pathlib.Path) -> None:
     assert main.read_text("utf-8") == "the main file as the authors left it"
     assert section.read_text("utf-8") == "an edited section"
     assert sources.read_text("utf-8") == "% the authors' bibliography"
-    assert not (section.parent / "abstract.tex").exists()
+    assert not (section.parent / "00_abstract.tex").exists()
+    assert not (tmp_path / esis2_science_paper.filename_acronyms).exists()
 
     generated = tmp_path / esis2_science_paper.directory_generated
     assert (generated / "test.pdf").exists()

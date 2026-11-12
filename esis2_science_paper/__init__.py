@@ -39,17 +39,28 @@ The file, inside :data:`directory_generated`, which defines a macro for
 every number cited in the prose, such as ``\cadence``.
 """
 
+filename_acronyms = "acronyms.tex"
+r"""
+The file, beside the main file of the manuscript, which defines the acronyms
+of the article, such as ``\CTIS``.
+
+It is seeded once, like the prose, so the authors can add and change
+acronyms in the manuscript.
+"""
+
 names_sections = (
-    "abstract",
-    "introduction",
-    "motivation",
-    "instrument",
-    "inversions",
-    "conclusions",
+    "00_abstract",
+    "01_introduction",
+    "02_motivation",
+    "03_instrument",
+    "04_inversions",
+    "05_conclusions",
 )
 """
 The name of the file, inside :data:`directory_sections`, each section of the
 article is seeded into, in the order the sections appear.
+
+Each is numbered, so that the files are listed in the order they are read.
 """
 
 __all__ = [
@@ -60,6 +71,7 @@ __all__ = [
     "document",
     "export",
     "figures",
+    "filename_acronyms",
     "filename_main",
     "filename_variables",
     "image_synthetic",

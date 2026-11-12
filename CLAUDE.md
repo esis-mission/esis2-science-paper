@@ -101,8 +101,10 @@ renders it from the files `export()` writes.
   figure, `variables.tex` with a `\newcommand` per `aastex.Variable`, and a
   README for the authors) and the class files beside the main file. Only if
   the project has no `esis2-science.tex` does it also seed the prose: the main
-  file (preamble, title, authors, keywords), one `sections/<name>.tex` per
-  section with its figures and captions, and `sources.bib`.
+  file (preamble, title, authors, keywords), `acronyms.tex` (one entry per
+  `aastex.Acronym`, a macro per line), one `sections/<NN>_<name>.tex` per
+  section with its figures and captions (`names_sections`, numbered in
+  reading order), and `sources.bib`.
 - **Once the project is seeded, the prose belongs to Overleaf.** Editing the
   prose, captions, preamble, acronyms, or `sources.bib` here does not reach the
   manuscript. Changes to the analysis (figures and numbers) are made here and
