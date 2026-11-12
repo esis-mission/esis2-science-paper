@@ -39,7 +39,7 @@ jobs:
       - name: Set up the article
         uses: ./.github/actions/setup
         with:
-          python-version: "3.12"
+          python-version: "3.13"
 
       - name: Name this delivery
         id: delivery
