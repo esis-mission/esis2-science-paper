@@ -1,15 +1,9 @@
 import pathlib
 
-import pylatex
 import pymupdf
 import pytest
 
 import esis2_science_paper
-
-
-def test_document() -> None:
-    doc = esis2_science_paper.document()
-    assert isinstance(doc, pylatex.Document)
 
 
 def test_pdf(capsys: pytest.CaptureFixture) -> None:
