@@ -199,6 +199,12 @@ def _write_seed(
             f"but {len(names)} names were given for their files: {names}"
         )
 
+    # The main file loads the packages its parts declare, such as `acronym`
+    # for the acronyms and `graphicx` for the figures, which are gathered
+    # from the parts themselves. They are gathered now, since the parts are
+    # replaced below by the commands which include their files.
+    document.dumps_packages()
+
     written = []
 
     sections = directory / esis2_science_paper.directory_sections

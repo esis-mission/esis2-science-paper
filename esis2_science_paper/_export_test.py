@@ -60,6 +60,9 @@ def test_export_seed(tmp_path: pathlib.Path) -> None:
     assert r"\newcommand{\cadence}" not in main
     assert r"\input{acronyms}" in main
     assert r"\newacro" not in main
+    # the packages of the parts moved into their own files are still loaded
+    assert r"\usepackage{acronym}" in main
+    assert r"\usepackage{graphicx}" in main
     assert r"\bibliography{sources}" in main
 
     sections = tmp_path / esis2_science_paper.directory_sections
