@@ -1,0 +1,128 @@
+name: overleaf
+
+# Deliver the article to its manuscript in Overleaf, where its authors edit
+# the prose.
+#
+# On a release, the images of the figures and the macros of the numbers are
+# written into the `generated` directory of the Overleaf project, replacing
+# those of the last release, so that the tag records exactly which analysis
+# produced them. The prose is written only once, to seed a project which does
+# not have the main file of the article yet, and is never overwritten.
+# The workflow can also be run by hand, to deliver without cutting a version.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Overleaf refuses a push which is not a fast-forward, so deliveries take
+# turns rather than racing each other.
+concurrency:
+  group: overleaf
+  cancel-in-progress: false
+
+jobs:
+  deliver:
+    name: Deliver the article to Overleaf
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # setuptools-scm reads the version from the tags
+          fetch-depth: 0
+
+      # The figures are drawn with LaTeX and computed from the CHIANTI
+      # database, like those the `tests` workflow builds.
+      - name: Set up the article
+        uses: ./.github/actions/setup
+        with:
+          python-version: "3.12"
+
+      - name: Name this delivery
+        id: delivery
+        # The tag of the release, or the commit when run by hand, so that the
+        # commit in the Overleaf project says where its contents came from.
+        run: |
+          if [ -n "${{ github.event.release.tag_name }}" ]; then
+            echo "name=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Look for the Overleaf credentials
+        id: overleaf
+        env:
+          OVERLEAF_TOKEN: ${{ secrets.OVERLEAF_TOKEN }}
+          OVERLEAF_PROJECT_ID: ${{ secrets.OVERLEAF_PROJECT_ID }}
+        # A fork, or a repository whose secrets have not been set, exports
+        # the manuscript and attaches it to the release, and stops there
+        # rather than failing.
+        run: |
+          if [ -n "$OVERLEAF_TOKEN" ] && [ -n "$OVERLEAF_PROJECT_ID" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::OVERLEAF_TOKEN or OVERLEAF_PROJECT_ID is not set; not delivering to Overleaf."
+          fi
+
+      - name: Clone the Overleaf project
+        if: steps.overleaf.outputs.available == 'true'
+        env:
+          OVERLEAF_TOKEN: ${{ secrets.OVERLEAF_TOKEN }}
+          OVERLEAF_PROJECT_ID: ${{ secrets.OVERLEAF_PROJECT_ID }}
+        # Cloned fresh every time, since Overleaf refuses a push which is not
+        # a fast-forward.
+        run: |
+          git clone --depth 1 \
+            "https://git:${OVERLEAF_TOKEN}@git.overleaf.com/${OVERLEAF_PROJECT_ID}" \
+            manuscript
+
+      - name: Find whether the manuscript is seeded
+        id: seed
+        run: |
+          if [ -f manuscript/esis2-science.tex ]; then
+            echo "seed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "seed=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::The manuscript has no esis2-science.tex, so it is seeded with the prose."
+          fi
+
+      - name: Export the article into the manuscript
+        env:
+          MPLBACKEND: agg
+        run: |
+          python -c "import esis2_science_paper; esis2_science_paper.export('manuscript')"
+          ls -R manuscript --ignore=.git
+
+      - name: Attach the manuscript to the release
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          zip -r manuscript.zip manuscript -x 'manuscript/.git/*'
+          gh release upload "${{ github.event.release.tag_name }}" manuscript.zip --clobber
+
+      - name: Deliver the manuscript to the Overleaf project
+        if: steps.overleaf.outputs.available == 'true'
+        env:
+          DELIVERY: ${{ steps.delivery.outputs.name }}
+          SEED: ${{ steps.seed.outputs.seed }}
+        run: |
+          cd manuscript
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --all
+          if git diff --cached --quiet; then
+            echo "The manuscript already has these figures and numbers."
+            exit 0
+          fi
+          if [ "$SEED" = "true" ]; then
+            message="Seed the manuscript from esis2-science-paper ${DELIVERY}"
+          else
+            message="Figures and numbers from esis2-science-paper ${DELIVERY}"
+          fi
+          git commit -m "$message"
+          git push

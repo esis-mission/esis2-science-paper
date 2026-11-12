@@ -10,6 +10,11 @@ a complete AAS-journal LaTeX article (text, figures, tables, and numeric values)
 describing the second flight of the EUV Snapshot Imaging Spectrograph (ESIS-II).
 Calling `esis2_science_paper.pdf()` produces the final `esis2-science.pdf`.
 
+The authors edit the prose in **Overleaf**. `esis2_science_paper.export()`
+seeds the Overleaf project with the prose once, and every release replaces
+only the files in its `generated/` directory (the figure images and
+`variables.tex`) and the AASTeX class files; see **Overleaf** below.
+
 This is one package within the larger Kankelborg-Group workspace (see the parent
 `../CLAUDE.md`). Its sibling articles `esis-instrument-paper` (the first flight)
 and `esis-jet-paper` follow the same layout and are the templates it was made from.
@@ -67,7 +72,7 @@ silently missing; `test_pdf` checks for this.
 The whole article is assembled in `_document.py`: `document()` builds an
 `aastex.Document`, appending acronyms, variables, title, authors, abstract,
 keywords, each section, and finally the bibliography (`sources.bib`). `pdf()`
-renders it.
+renders it from the files `export()` writes.
 
 - **`sections/`**: each module returns an `aastex.Section` (or `aastex.Abstract`).
   Prose lives here as raw LaTeX strings (with `\cite`, `\ref`, equations) and
@@ -88,6 +93,31 @@ renders it.
 - **`_preamble.py`**: custom commands: `\ESISI` and `\ESISII` for the two
   flights, ion macros such as `\NeVII`, and a colored comment macro per author
   (`\jake`, `\genevieve`, `\charles`, `\amy`, `\will`, `\roy`, `\adrian`).
+
+## Overleaf
+
+- `_export.py`: `export(directory)` writes the article into a clone of the
+  Overleaf project. Every call replaces `generated/` (the image of each
+  figure, `variables.tex` with a `\newcommand` per `aastex.Variable`, and a
+  README for the authors) and the class files beside the main file. Only if
+  the project has no `esis2-science.tex` does it also seed the prose: the main
+  file (preamble, title, authors, keywords), one `sections/<name>.tex` per
+  section with its figures and captions, and `sources.bib`.
+- **Once the project is seeded, the prose belongs to Overleaf.** Editing the
+  prose, captions, preamble, acronyms, or `sources.bib` here does not reach the
+  manuscript. Changes to the analysis (figures and numbers) are made here and
+  reach it with the next release. A new figure's image appears in `generated/`,
+  and its `figure` environment has to be added in Overleaf.
+- `pdf()` builds the article from a fresh `export()` into
+  `esis2_science_paper/build/` with `latexmk`, so the tests and the preview
+  compile exactly what a new project is seeded with.
+- `.github/workflows/overleaf.yml` runs on every published release (or by
+  hand): it clones the project with the `OVERLEAF_TOKEN` and
+  `OVERLEAF_PROJECT_ID` secrets, exports into it, attaches the result to the
+  release, and pushes one commit. `.github/actions/setup` holds the LaTeX,
+  Python, and CHIANTI setup it shares with `tests.yml`.
+- A renamed or removed `aastex.Variable` breaks any prose in Overleaf that
+  still cites it, so keep the names of variables stable.
 
 ## Conventions
 

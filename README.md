@@ -87,6 +87,56 @@ article to the link above, and pull requests get their own preview at
 `…/pr/<number>/esis2-science.pdf`, linked in a comment on the pull request and
 removed when it closes.
 
+## Editing in Overleaf
+
+The authors edit the prose of the article in Overleaf, and this repository
+delivers the parts of it which come from the analysis there on every
+release.
+
+```python
+import esis2_science_paper
+esis2_science_paper.export("path/to/overleaf")
+```
+
+`export()` writes into a clone of the Overleaf project:
+
+| path | written | contents |
+|---|---|---|
+| `generated/variables.tex` | every release | a `\newcommand` for every number the prose cites |
+| `generated/<figure>.pdf` | every release | the image of each figure |
+| `aastex701.cls`, `aasjournalv7.bst`, `orcid-ID.png` | every release | the AASTeX class files |
+| `esis2-science.tex` | once | the main file: the preamble, title, authors, and keywords |
+| `sections/<name>.tex` | once | each section, with its figures and their captions |
+| `sources.bib` | once | the bibliography |
+
+The files written once seed a project which does not have
+`esis2-science.tex` yet, and are never written again, so from then on the
+prose, the captions, the macros of the preamble, and the bibliography belong
+to Overleaf. Edit them there: a change to the prose in this repository does
+not reach the manuscript once it is seeded. Everything in `generated/` is
+replaced on every delivery, so it is the one part of the manuscript not to
+edit by hand. A number the prose cites, or a figure, is changed here and
+reaches the manuscript with the next release.
+
+### Delivery
+
+Publishing a release runs the `overleaf` workflow, which exports the
+article into the Overleaf project, pushes it as a single commit, and
+attaches the exported manuscript to the release. The same workflow can be
+run by hand from the Actions tab to deliver without cutting a version.
+
+It needs two repository secrets, and warns and skips the push without them:
+
+| Secret | Value |
+|---|---|
+| `OVERLEAF_TOKEN` | A git authentication token from Overleaf's account settings |
+| `OVERLEAF_PROJECT_ID` | The part of the project's URL after `overleaf.com/project/` |
+
+The project is cloned fresh every time, since Overleaf refuses a push that
+is not a fast-forward. After the first delivery seeds it, set its main
+document to `esis2-science.tex` (Menu, then Main document), and delete the
+`main.tex` a new Overleaf project starts with.
+
 ## Commenting on the draft
 
 Each author has a colored comment macro for notes in the prose:
