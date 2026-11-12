@@ -15,6 +15,37 @@ __all__ = [
 _filename_sources = "sources.bib"
 """The bibliography of the manuscript, seeded from the one in this package."""
 
+_header_acronyms = r"""% The acronyms of the article, for the acronym package.
+%
+% Each one is declared with \newacro, and has a macro for its usual form,
+% such as \CTIS, which is spelled out the first time it is used and
+% abbreviated after that, and one for the start of a sentence, such as
+% \CTISCapital. Some also have a plural, \CTISs and \CTISCapitals, or a
+% macro which is always abbreviated, \ARShort.
+%
+% To add one, copy an entry and change its name and its expansion:
+%
+% \newacro{EIS}[EIS]{the EUV Imaging Spectrometer}
+% \newcommand{\EIS}{\ac{EIS}}
+% \newcommand{\EISCapital}{\Ac{EIS}}
+"""
+"""The first lines of the acronyms file, which say how to add one."""
+
+
+def _dumps_acronym(acronym: aastex.Acronym) -> str:
+    r"""
+    The definition of one acronym, with each of its macros on a line of its
+    own, so that it can be read and edited by hand.
+
+    Parameters
+    ----------
+    acronym
+        The acronym to define.
+    """
+    tex = acronym.dumps().removesuffix("%")
+    return tex.replace(r"}\newcommand", "}\n\\newcommand")
+
+
 _readme = """\
 # Generated files
 
@@ -31,8 +62,8 @@ Edit them there instead of here, or the change will be lost.
 The AASTeX class files at the root of the project, {class_files}, are
 replaced on every release too.
 
-Everything else, the prose, the captions, the macros of the preamble, and
-`{sources}`, belongs to this project and is never overwritten.
+Everything else, the prose, the captions, the acronyms, the macros of the
+preamble, and `{sources}`, belongs to this project and is never overwritten.
 """
 """The README of :data:`esis2_science_paper.directory_generated`, for the authors in Overleaf."""
 
@@ -139,9 +170,11 @@ def _write_seed(
 
     The main file keeps the preamble, the title, the authors, and the
     keywords, and includes each section from a file of its own, with its
-    figures and their captions.
-    The macros of the numbers are read from :data:`esis2_science_paper.directory_generated`,
-    and the figures include their images from there.
+    figures and their captions, and the acronyms from
+    :data:`esis2_science_paper.filename_acronyms`.
+    The macros of the numbers are read from
+    :data:`esis2_science_paper.directory_generated`, and the figures
+    include their images from there.
 
     This changes ``document``, so it is written after the generated files,
     which are taken from it unchanged.
@@ -178,6 +211,22 @@ def _write_seed(
         document.data[index] = pylatex.NoEscape(
             rf"\input{{{esis2_science_paper.directory_sections}/{name}}}"
         )
+
+    acronyms = [
+        index
+        for index, item in enumerate(document.preamble)
+        if isinstance(item, aastex.Acronym)
+    ]
+    if acronyms:
+        entries = [_dumps_acronym(document.preamble[i]) for i in acronyms]
+        path = directory / esis2_science_paper.filename_acronyms
+        tex = _header_acronyms + "\n" + "\n\n".join(entries) + "\n"
+        path.write_text(tex, encoding="utf-8")
+        written.append(path)
+        stem = pathlib.Path(esis2_science_paper.filename_acronyms).stem
+        document.preamble[acronyms[0]] = pylatex.NoEscape(rf"\input{{{stem}}}")
+        for index in reversed(acronyms[1:]):
+            del document.preamble[index]
 
     stem = pathlib.Path(esis2_science_paper.filename_variables).stem
     document.variables = [
