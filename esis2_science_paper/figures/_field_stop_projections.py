@@ -108,9 +108,5 @@ def field_stop_projections() -> aastex.Figure:
 
     result = aastex.Figure("fig:projections", position="!htb")
     result.add_fig(fig, width=None)
-    result.add_caption(aastex.NoEscape(r"""
-The image of the field stop on the detector of a single \ESISII\ channel, at
-each of the \numEmissionLines\ lines of Figure~\ref{fig:bunch}.
-The axes span the active area of the \CCD."""))
 
     return result

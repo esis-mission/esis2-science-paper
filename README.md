@@ -34,11 +34,13 @@ The article follows the structure of the ESIS-II proposal in three parts:
 
 ## This repository *is* the article
 
-Every figure, table, and numeric value in the prose is computed at build time
-by the `esis2_science_paper` package, so the text cannot drift away from the
-analysis. Numbers reach the prose as `aastex.Variable` macros rather than as
-literals; a quantity the analysis has not produced yet is rendered as a bold
-**XX**. Sections not yet written appear in the PDF as a gray outline.
+The prose of the article is LaTeX, in the `manuscript` directory, which is a
+copy of the Overleaf project the authors edit it in. Every figure and numeric
+value in the prose is computed at build time by the `esis2_science_paper`
+package, so the text cannot drift away from the analysis. Numbers reach the
+prose as macros rather than as literals; a quantity the analysis has not
+produced yet is rendered as a bold **XX**. Sections not yet written appear in
+the PDF as a gray outline.
 
 ```python
 import esis2_science_paper
@@ -47,14 +49,11 @@ esis2_science_paper.pdf()
 
 | path | contents |
 |---|---|
-| `_document.py` | assembles the article and renders the pdf |
-| `sections/` | the prose, as LaTeX strings, one module per section |
-| `figures/` | one module per figure, each returning an `aastex.Figure` |
-| `tables/` | one module per table |
-| `_variables.py` | the `aastex.Variable` macros quoted in the prose |
-| `_acronyms.py` | acronym definitions used as `\ACRONYM` macros |
-| `_preamble.py` | custom commands, including a comment macro per author |
-| `sources.bib` | the bibliography |
+| `manuscript/` | the prose: the main file, the acronyms, a file per section, and the bibliography |
+| `esis2_science_paper/figures/` | one module per figure, each returning an `aastex.Figure` holding its image |
+| `esis2_science_paper/_variables.py` | the `aastex.Variable` macros quoted in the prose |
+| `esis2_science_paper/_export.py` | writes the figures and the numbers into a manuscript |
+| `esis2_science_paper/_pdf.py` | compiles the manuscript with them |
 
 The analysis itself belongs in the group's libraries, not here:
 [`esis`](https://github.com/esis-mission/esis) for the instrument model and
@@ -87,60 +86,67 @@ article to the link above, and pull requests get their own preview at
 `…/pr/<number>/esis2-science.pdf`, linked in a comment on the pull request and
 removed when it closes.
 
-## Editing in Overleaf
+## Editing the prose
 
-The authors edit the prose of the article in Overleaf, and this repository
-delivers the parts of it which come from the analysis there on every
-release.
+The prose can be edited in two places, and each is kept up to date with the
+other by the `manuscript` workflow:
+
+- **In Overleaf**, where the authors write. Every night, the prose of the
+  Overleaf project is copied into a pull request here. The workflow can also
+  be run by hand from the Actions tab, to bring edits in sooner.
+- **In `manuscript/` here**, through a pull request. When it is merged, its
+  changes are merged into the Overleaf project, beside whatever the authors
+  have edited there since.
+
+The two layouts are the same: `manuscript/sections/01_introduction.tex` here
+is `sections/01_introduction.tex` in Overleaf.
+
+An edit here and an edit in Overleaf to different lines of a file are both
+kept. If they change the same lines, nothing is sent to Overleaf and the
+workflow fails. Run it by hand to open a pull request with the prose of
+Overleaf, settle the lines there, and merge it.
+
+GitHub does not start the checks of a pull request a workflow opens, so the
+workflow starts them itself. The repository setting "Allow GitHub Actions to
+create and approve pull requests" has to be on for it to open one.
+
+## Figures and numbers
+
+The parts of the manuscript which come from the analysis are not kept in
+`manuscript/`. `export()` writes them into a copy of it:
 
 ```python
 import esis2_science_paper
 esis2_science_paper.export("path/to/overleaf")
 ```
 
-`export()` writes into a clone of the Overleaf project:
+| path | contents |
+|---|---|
+| `generated/variables.tex` | a `\newcommand` for every number the prose cites |
+| `generated/<figure>.pdf` | the image of each figure |
+| `aastex701.cls`, `aasjournalv7.bst`, `orcid-ID.png` | the AASTeX class files |
 
-| path | written | contents |
-|---|---|---|
-| `generated/variables.tex` | every release | a `\newcommand` for every number the prose cites |
-| `generated/<figure>.pdf` | every release | the image of each figure |
-| `aastex701.cls`, `aasjournalv7.bst`, `orcid-ID.png` | every release | the AASTeX class files |
-| `esis2-science.tex` | once | the main file: the preamble, title, authors, and keywords |
-| `acronyms.tex` | once | the acronyms, with an example of how to add one |
-| `sections/00_abstract.tex`, `01_introduction.tex`, ... | once | each section, numbered in reading order, with its figures and their captions |
-| `sources.bib` | once | the bibliography |
+`pdf()` and the tests compile `manuscript/` with them, so a number or a figure
+the prose cites and the analysis no longer supplies fails a pull request.
 
-The files written once seed a project which does not have
-`esis2-science.tex` yet, and are never written again, so from then on the
-prose, the captions, the acronyms, the macros of the preamble, and the
-bibliography belong to Overleaf. Edit them there: a change to the prose in this repository does
-not reach the manuscript once it is seeded. Everything in `generated/` is
-replaced on every delivery, so it is the one part of the manuscript not to
-edit by hand. A number the prose cites, or a figure, is changed here and
-reaches the manuscript with the next release.
+Publishing a release runs the `overleaf` workflow, which writes them into the
+Overleaf project, replacing those of the last release, pushes one commit, and
+attaches the whole manuscript to the release. It can be run by hand to
+deliver without cutting a version. Everything in `generated/` is replaced on
+every delivery, so it is the one part of the Overleaf project not to edit by
+hand.
 
-### Delivery
+To add a figure, write its module in `figures/`, add it to
+`figures.figures()`, and add its `figure` environment, with
+`\includegraphics{generated/<name>}` and its caption, to a section in
+`manuscript/`.
 
-Publishing a release runs the `overleaf` workflow, which exports the
-article into the Overleaf project, pushes it as a single commit, and
-attaches the exported manuscript to the release. The same workflow can be
-run by hand from the Actions tab to deliver without cutting a version.
-
-It needs two repository secrets, and warns and skips the push without them:
+Both workflows need two repository secrets, and warn and skip without them:
 
 | Secret | Value |
 |---|---|
 | `OVERLEAF_TOKEN` | A git authentication token from Overleaf's account settings |
 | `OVERLEAF_PROJECT_ID` | The part of the project's URL after `overleaf.com/project/` |
-
-The project is cloned fresh every time, since Overleaf refuses a push that
-is not a fast-forward. After the first delivery seeds it, set its main
-document to `esis2-science.tex` (Menu, then Main document), and delete the
-`main.tex` a new Overleaf project starts with.
-
-To seed the project again, which discards every edit to the prose, delete
-`esis2-science.tex`, `acronyms.tex`, `sections/`, and `sources.bib` in
-Overleaf, and run the workflow by hand.
 
 ## Commenting on the draft
 

@@ -91,28 +91,5 @@ def synthetic_image() -> aastex.FigureStar:
 
     result = aastex.FigureStar("fig:synthetic", position="!htb")
     result.add_fig(fig, width=None)
-    result.add_caption(aastex.NoEscape(r"""
-Above, a simulated \timeExposure\ exposure from one channel of \ESISII, in the
-electrons collected by each pixel of the \CCD, on a square-root scale, with the shot
-noise of the photons and the read noise of the camera.
-The scene is the active regions NOAA 12565 and 12567 at 00:00~UT on 2016 July 15:
-the \DEM\ of each \AIA\ pixel, inverted from the six optically thin \EUV\ channels
-with the method of \citet{Plowman2020}, and the \numLinesScene\ lines of the
-passband which carry at least \fractionLineMin\ of its radiance, at rest.
-The images of \NeVII\ and \SiXII\ fall on either side of the center.
-The fainter images around them are of \FeXIV, almost on top of \NeVII; of \FeXV,
-\NeV, and \FeXIII\ across the center; of a second line of \FeXIII\ and the weaker
-line of \SiXII, which clip the right edge; and of shorter lines of \FeXIV, \SXIV,
-and \MgIX, which clip the left edge.
-The lines of \MgVII\ and \MgVIII\ at the short end of the passband put almost no
-light on the detector, since the coatings reflect little there, and their images
-fall mostly off its left edge.
-Below, on a logarithmic scale, the \SNR\ of each resolution element, a block of
-$\sizeBlock \times \sizeBlock$ pixels: the electrons it collects on average, over the
-standard deviation of the noise of their sum, from the shot noise of the photons it
-absorbs, the spread of the charge each frees, and the read noise of each of its
-pixels.
-It leaves out the charge which diffuses between pixels, which lowers the noise of
-each pixel only by correlating it with its neighbors."""))
 
     return result

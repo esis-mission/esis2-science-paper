@@ -1,13 +1,5 @@
-import aastex
+\begin{abstract}%
 
-__all__ = [
-    "abstract",
-]
-
-
-def abstract() -> aastex.Abstract:
-    result = aastex.Abstract()
-    result.append(r"""
 Nanoflare models of active region heating predict that coronal magnetic reconnection accelerates
 beams of nonthermal electrons, which deposit their energy in the transition region at the
 footpoints of hot loops, the moss.
@@ -32,5 +24,5 @@ technique using subsets of the six channels, and find that
 \numChannelsRequired\ channels recover the Doppler shifts of extended structures to within
 \velocityError.
 \roy{One sentence on what this means for the flight and for a future orbital CTIS.}
-\acresetall""")
-    return result
+\acresetall%
+\end{abstract}

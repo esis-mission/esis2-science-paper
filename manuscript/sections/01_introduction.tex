@@ -1,13 +1,6 @@
-import aastex
+\section{Introduction}%
+\label{sec:Introduction}%
 
-__all__ = [
-    "introduction",
-]
-
-
-def introduction() -> aastex.Section:
-    result = aastex.Section("Introduction")
-    result.append(r"""
 \begin{outline}
 \item \textbf{Coronal heating by nanoflares.}
     Energy stored in the braided coronal field is released by many small reconnection
@@ -35,5 +28,4 @@ def introduction() -> aastex.Section:
     Section~\ref{sec:TheESISIIInstrument} describes the instrument and what has changed since
     \ESISI, Section~\ref{sec:InversionsofTestData} inverts test data, and
     Section~\ref{sec:Conclusions} concludes.
-\end{outline}""")
-    return result
+\end{outline}

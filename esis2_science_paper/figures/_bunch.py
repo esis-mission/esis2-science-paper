@@ -170,14 +170,5 @@ def bunch() -> aastex.FigureStar:
     result = aastex.FigureStar("fig:bunch", position="!htb")
     result.append(aastex.NoEscape(r"\centering"))
     result.add_fig(fig, width=aastex.NoEscape(r"\textwidth"))
-    result.add_caption(aastex.NoEscape(r"""
-The \numEmissionLines\ emission lines which put the most light on the
-detector of \ESISII, those whose radiance times the effective area is
-greatest, and the effective area of a single channel beneath them.
-The lines are computed from version \chiantiVersion\ of the CHIANTI atomic
-database~\citep{Dere1997,DelZanna2021}, using the coronal abundances of
-\chiantiAbundances~\citep{Dere2023}, which raise the photospheric abundances
-of \citet{Asplund2021} for the elements of low first ionization potential,
-the \AR\ \DEM\ file \chiantiDEM, and $n_e T = $\,\chiantiPressure."""))
 
     return result

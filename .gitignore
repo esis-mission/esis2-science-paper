@@ -47,3 +47,11 @@ esis2_science_paper/aasjournalv7.bst
 # submission archives built by `aastex.Document.generate_archive()`
 *.zip
 *.tar.gz
+
+# The parts of the manuscript `export` writes: the figures, the numbers, and
+# the AASTeX class files. The rest of the manuscript is the prose, a copy of
+# the Overleaf project.
+manuscript/generated/
+manuscript/aastex*.cls
+manuscript/aasjournal*.bst
+manuscript/orcid-ID.png

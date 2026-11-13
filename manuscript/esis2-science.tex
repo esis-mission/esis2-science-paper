@@ -1,0 +1,94 @@
+\documentclass[twocolumn,linenumbers]{aastex701}%
+\usepackage[T1]{fontenc}%
+\usepackage[utf8]{inputenc}%
+\usepackage{lastpage}%
+\usepackage{amsmath}%
+\usepackage{hyperref}%
+\usepackage{siunitx}%
+\usepackage{graphicx}%
+\usepackage{acronym}%
+\input{generated/variables}%
+\bibliographystyle{aasjournalv7}%
+%
+
+\makeatletter
+\newcommand{\acposs}[1]{%
+ \expandafter\ifx\csname AC@#1\endcsname\AC@used
+   \acs{#1}'s%
+ \else
+   \aclu{#1}'s (\acs{#1}'s)%
+ \fi
+}
+\newcommand{\Acposs}[1]{%
+ \expandafter\ifx\csname AC@#1\endcsname\AC@used
+   \acs{#1}'s%
+ \else
+   \Aclu{#1}'s (\acs{#1}'s)%
+ \fi
+}
+\makeatother%
+\newcommand{\ESISI}{\mbox{ESIS-I}}%
+\newcommand{\ESISII}{\mbox{ESIS-II}}%
+\newcommand{\FeXIII}{Fe\,\textsc{xiii}}%
+\newcommand{\FeXIV}{Fe\,\textsc{xiv}}%
+\newcommand{\FeXV}{Fe\,\textsc{xv}}%
+\newcommand{\HeII}{He\,\textsc{ii}}%
+\newcommand{\MgVII}{Mg\,\textsc{vii}}%
+\newcommand{\MgVIII}{Mg\,\textsc{viii}}%
+\newcommand{\MgIX}{Mg\,\textsc{ix}}%
+\newcommand{\NeV}{Ne\,\textsc{v}}%
+\newcommand{\NeVII}{Ne\,\textsc{vii}}%
+\newcommand{\OV}{O\,\textsc{v}}%
+\newcommand{\SiIV}{Si\,\textsc{iv}}%
+\newcommand{\SiXII}{Si\,\textsc{xii}}%
+\newcommand{\SXIV}{S\,\textsc{xiv}}%
+\newcommand{\ie}{i.e.}%
+\newcommand{\eg}{e.g.}%
+\newcommand{\jake}[1]{{{\color{purple} #1}}}%
+\newcommand{\genevieve}[1]{{{\color{magenta} #1}}}%
+\newcommand{\charles}[1]{{{\color{teal} #1}}}%
+\newcommand{\amy}[1]{{{\color{red} #1}}}%
+\newcommand{\will}[1]{{{\color{olive} #1}}}%
+\newcommand{\roy}[1]{{{\color{blue} #1}}}%
+\newcommand{\adrian}[1]{{{\color{brown} #1}}}%
+
+\newenvironment{outline}
+  {\par\color{gray}\small\noindent\textbf{Outline.}\begin{itemize}}
+  {\end{itemize}}%
+\input{acronyms}%
+%
+\begin{document}%
+\normalsize%
+\title{Detecting Electron Beam Heating in Active Region Moss with the Second Flight of the EUV Snapshot Imaging Spectrograph}%
+\correspondingauthor{Jacob D. Parker}
+\author[0000-0001-8732-8284]{Jacob D. Parker}
+\email[show]{jacobdparker@gmail.com}
+\affiliation{Montana State University, Department of Physics, P.O. Box 173840, Bozeman, MT 59717, USA}%
+\author[0000-0002-7219-1526]{Genevieve D. Vigil}
+\email{}
+\affiliation{NASA Marshall Space Flight Center, Huntsville, AL 35812, USA}%
+\author[0000-0002-1992-7469]{Charles C. Kankelborg}
+\email{}
+\affiliation{Montana State University, Department of Physics, P.O. Box 173840, Bozeman, MT 59717, USA}%
+\author[0000-0002-5608-531X]{Amy R. Winebarger}
+\email{}
+\affiliation{NASA Marshall Space Flight Center, Huntsville, AL 35812, USA}%
+\author[0000-0001-9642-6089]{Will T. Barnes}
+\email{}
+\affiliation{American University, Department of Physics, Washington, DC 20016, USA}
+\affiliation{NASA Goddard Space Flight Center, Greenbelt, MD 20771, USA}%
+\author[0000-0002-9997-5515]{Roy T. Smart}
+\email{}
+\affiliation{Montana State University, Department of Physics, P.O. Box 173840, Bozeman, MT 59717, USA}%
+\author[0000-0002-9288-6210]{Adrian N. Daw}
+\email{}
+\affiliation{NASA Goddard Space Flight Center, Greenbelt, MD 20771, USA}%
+\input{sections/00_abstract}%
+\keywords{\uat{Solar coronal heating}{1989}, \uat{Solar magnetic reconnection}{1504}, \uat{Solar active regions}{1974}, \uat{Solar transition region}{1532}, \uat{Solar extreme ultraviolet emission}{1493}, \uat{Solar instruments}{1499}, \uat{Spectrometers}{1554}, \uat{Doppler shift}{401}}%
+\input{sections/01_introduction}%
+\input{sections/02_motivation}%
+\input{sections/03_instrument}%
+\input{sections/04_inversions}%
+\input{sections/05_conclusions}%
+\bibliography{sources}%
+\end{document}
