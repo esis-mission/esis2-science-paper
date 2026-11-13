@@ -18,11 +18,12 @@ dependencies = [
     "aastex~=0.9",
     "matplotlib",
     "num2words~=0.5",
-    "named-arrays~=2.15",
+    "named-arrays~=2.19",
     "optika~=3.9",
-    "euv-snapshot-imaging-spectrograph~=1.12",
-    "utu~=0.4",
+    "euv-snapshot-imaging-spectrograph~=1.13",
+    "utu~=0.6",
     "fiasco~=0.8.2",
+    "zarr~=3.0",
 ]
 dynamic = ["version"]
 

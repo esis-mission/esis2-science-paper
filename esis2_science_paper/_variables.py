@@ -153,6 +153,23 @@ def variables() -> list[aastex.Variable]:
             name="sizeBlock",
             value=esis2_science_paper._synthetic.size_block,
         ),
+        # the scene of the simulated image of the MURaM simulation
+        aastex.Variable(
+            name="numLinesMuram",
+            value=aastex.NoEscape(
+                num2words.num2words(esis2_science_paper._muram.wavelength_muram().size)
+            ),
+        ),
+        aastex.Variable(
+            name="stretchMuram",
+            value=aastex.NoEscape(f"{esis2_science_paper._muram.stretch_muram():.1f}"),
+        ),
+        aastex.Variable(
+            name="fractionMaskedMuram",
+            value=aastex.NoEscape(
+                rf"{100 * esis2_science_paper.figures.fraction_masked:g}\%"
+            ),
+        ),
         # from the ESIS-II optical model in `esis.flights.f2`
         aastex.Variable(
             name="timeExposure",

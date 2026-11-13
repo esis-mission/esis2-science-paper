@@ -81,6 +81,11 @@ silently missing; `test_pdf` checks for this.
   The `figure` environment and the caption are in `manuscript/`.
 - **`_variables.py`**: `aastex.Variable` LaTeX macros for every numeric value
   cited in the prose.
+- **`_muram.py`**: a simulated exposure of the MURaM active region of
+  `esis.flights.f2.data.synth.scene_muram`, with the radiance and Doppler
+  centroid of Ne VII and Si XII in the scene. It takes tens of minutes on a
+  workstation, so it is cached with `esis.memory`, as is the one number read
+  from the simulation itself, so that only a cold run downloads it.
 - **`_export.py`**: `export(directory)` writes `generated/` (the image of each
   figure, `variables.tex`, a README for the authors) and the class files into
   a copy of the manuscript, replacing those of the last delivery. It never
