@@ -1,0 +1,3 @@
+# What `joblib` remembers is looked up by the source of its function, so
+# its line endings are kept as they were written.
+cache/** -text

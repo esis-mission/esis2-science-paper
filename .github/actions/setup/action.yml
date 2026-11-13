@@ -79,8 +79,7 @@ runs:
         )
         "
     # What the article computes is cached as well: the spectrum, the
-    # effective area, and the simulated images this package remembers (that
-    # of the MURaM simulation takes longer than everything else together), the
+    # effective area, and the simulated image this package remembers, the
     # contribution functions of the scene of that image, which `esis`
     # remembers and which take a quarter of an hour of their own, and the
     # AIA images the scene is made from, with the searches which found them.

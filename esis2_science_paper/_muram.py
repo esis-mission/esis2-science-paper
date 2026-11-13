@@ -1,9 +1,12 @@
 """A simulated ESIS-II exposure of a MURaM simulation of an active region."""
 
 import importlib.metadata
+import os
+import pathlib
 
 import astropy.units as u
 import esis
+import joblib
 import named_arrays as na
 import numpy as np
 import zarr
@@ -43,6 +46,21 @@ detector it is imaged onto, so that the two cannot be confused.
 _axis_target = "target"
 """The name of the axis along the lines whose radiance is kept."""
 
+_memory = joblib.Memory(
+    location=pathlib.Path(__file__).parents[1] / "cache",
+    mmap_mode="r",
+    verbose=0,
+)
+"""
+The cache of the simulated image, the directory ``cache`` at the root of the
+repository, which is committed.
+
+The image takes half an hour on a workstation and would take hours on a
+runner of GitHub, which forgets a cache of its own after a week. So it is
+computed on a workstation, and what :mod:`joblib` remembers of it is
+committed beside the code which computed it.
+"""
+
 _packages = [
     "euv-snapshot-imaging-spectrograph",
     "msfc-ccd",
@@ -54,7 +72,7 @@ _packages = [
 """The packages the simulated image is computed with."""
 
 
-@esis.memory.cache
+@_memory.cache
 def _muram(
     fraction_min: float,
     velocity: u.Quantity,
@@ -69,6 +87,9 @@ def _muram(
 
     It takes tens of minutes, mostly imaging each line in each group of bins
     of velocity.
+
+    The results are single precision, which halves what is committed and is
+    far finer than the figure can show.
 
     ``versions`` is not read here, but is part of the key the cache is looked
     up by: it holds the versions of the packages and of the CHIANTI database
@@ -143,15 +164,15 @@ def _muram(
     position = scene.inputs.position
     image = na.FunctionArray(
         inputs=image.inputs.position,
-        outputs=electrons.to(u.electron),
+        outputs=electrons.to(u.electron).astype(np.float32),
     )
     centroid = na.FunctionArray(
         inputs=position,
-        outputs=(moment / radiance).to(u.km / u.s),
+        outputs=(moment / radiance).to(u.km / u.s).astype(np.float32),
     )
     radiance = na.FunctionArray(
         inputs=position,
-        outputs=radiance.to(u.erg / u.cm**2 / u.s / u.sr),
+        outputs=radiance.to(u.erg / u.cm**2 / u.s / u.sr).astype(np.float32),
     )
 
     return image, radiance, centroid, rest
@@ -214,13 +235,13 @@ def stretch_muram() -> float:
     return float((scene.ndarray / true).to_value(u.dimensionless_unscaled))
 
 
-@esis.memory.cache
+@_memory.cache
 def _width_pixel(version: str) -> u.Quantity:
     """
     Read and remember the width of a pixel of the simulation.
 
-    Remembered so that only a computer which has not computed the image
-    downloads the simulation.
+    Remembered beside the image, so that only the computer which computes
+    the image downloads the simulation.
 
     ``version`` is not read here, but is part of the key the cache is looked
     up by: it is the version of ``esis``, which names the simulation.
@@ -236,7 +257,12 @@ def _cached() -> tuple[
     na.FunctionArray,
     na.AbstractScalar,
 ]:
-    """The result of :func:`_muram`, from the cache if it is there."""
+    """
+    The result of :func:`_muram`, from the cache if it is there.
+
+    A runner of GitHub does not compute it, which would take hours, and
+    fails instead.
+    """
     versions = {p: importlib.metadata.version(p) for p in _packages}
     versions["chianti"] = esis2_science_paper._spectrum.version()
     wavelength = u.Quantity(
@@ -245,10 +271,19 @@ def _cached() -> tuple[
             esis2_science_paper._spectrum.wavelength_si_xii,
         ]
     )
-    return _muram(
-        fraction_min=esis2_science_paper._synthetic.fraction_min,
-        velocity=_velocity.explicit.ndarray,
-        num_chunk=_num_chunk,
-        wavelength=wavelength,
-        versions=versions,
-    )
+    kwargs = {
+        "fraction_min": esis2_science_paper._synthetic.fraction_min,
+        "velocity": _velocity.explicit.ndarray,
+        "num_chunk": _num_chunk,
+        "wavelength": wavelength,
+        "versions": versions,
+    }
+    if os.environ.get("CI") and not _muram.check_call_in_cache(**kwargs):
+        raise RuntimeError(
+            "The simulated image of the MURaM simulation in `cache` was "
+            f"computed with other versions of the packages than {versions}, "
+            "or by other code. It takes hours to compute here, so compute it "
+            "on a workstation with `esis2_science_paper.image_muram()`, and "
+            "commit the new directory in `cache` in place of the old one."
+        )
+    return _muram(**kwargs)
