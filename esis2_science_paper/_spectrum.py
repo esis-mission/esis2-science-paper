@@ -108,9 +108,10 @@ electrons which takes tens of seconds.
 """
 
 
-def _temperature_fine() -> na.AbstractScalar:
+def _log_temperature_fine() -> np.ndarray:
     """
-    The temperatures the contribution functions are computed at.
+    The base-10 logarithms of the temperatures, in kelvin, the contribution
+    functions are computed at.
 
     Five times finer than :func:`temperature`, which need only be as fine as
     the differential emission measure it is summed against. A tenth of a
@@ -119,10 +120,7 @@ def _temperature_fine() -> na.AbstractScalar:
     CHIANTI tabulates its ionization fractions at, so they are drawn as
     :mod:`fiasco` interpolates between them.
     """
-    return na.ScalarArray(
-        ndarray=10 ** np.arange(4, 7.501, 0.02) * u.K,
-        axes=(_axis,),
-    )
+    return np.arange(4, 7.501, 0.02)
 
 
 def emission_measure() -> na.AbstractScalar:
@@ -236,7 +234,7 @@ def lines(
 def _contribution_function(
     ion: str,
     wavelength: u.Quantity,
-    temperature: na.AbstractScalar,
+    log_temperature: np.ndarray,
     abundance: str,
     pressure: u.Quantity,
     chianti_version: str,
@@ -247,12 +245,25 @@ def _contribution_function(
 
     Everything after the wavelength is an argument for the reason it is in
     :func:`_lines`, so that it is part of what the cache is keyed on. That
-    includes the temperatures: computed here from :func:`_temperature_fine`,
-    a change to the grid would be answered with the curves of the old one.
+    includes the temperatures: computed here from
+    :func:`_log_temperature_fine`, a change to the grid would be answered
+    with the curves of the old one.
+
+    The temperatures are given as their logarithms, which every computer
+    computes alike, rather than as the powers of ten, which do not. NumPy
+    raises ten to a power with Intel's vectorized math library on a processor
+    with AVX-512, and with the C library on one without, and the two can
+    differ in the last bit. The cache would then hold the same curves under
+    a different key for each kind of processor, and a runner of the
+    continuous integration would compute them again whenever it landed on
+    the other kind.
     """
     import fiasco
 
-    t = temperature
+    t = na.ScalarArray(
+        ndarray=10**log_temperature * u.K,
+        axes=(_axis,),
+    )
 
     # The ratio of protons to electrons is the slow part of a small ion, and
     # depends on nothing but the temperature, so it is computed once rather
@@ -322,7 +333,7 @@ def contribution_function(
     return _contribution_function(
         ion=ion,
         wavelength=wavelength,
-        temperature=_temperature_fine(),
+        log_temperature=_log_temperature_fine(),
         abundance=abundance,
         pressure=pressure,
         chianti_version=version(),

@@ -88,7 +88,15 @@ renders it from the files `export()` writes.
   all are cached with `esis.memory`, keyed on the CHIANTI, `optika`, and `esis`
   versions. `joblib` keys only on a function's arguments and source, so pass
   every module-level setting (abundances, DEM, pressure) into a cached function
-  rather than reading it there, or changing it serves stale results; CI caches `~/.fiasco` and `~/.esis/cache/esis2_science_paper`.
+  rather than reading it there, or changing it serves stale results. Pass
+  arguments every computer computes alike: an exponent grid rather than
+  `10 ** grid`, since NumPy's `power` uses SVML on AVX-512 runners and libm on
+  others, and the last bit, hence the key, differs between them.
+  CI caches `~/.fiasco` under its version. What the article computes (this
+  package's `joblib` results, those of the `esis` scene, and the AIA images and
+  JSOC searches) is a rolling cache: `.github/actions/setup` restores the newest
+  one, and `.github/actions/remember` saves a new one only if the run wrote a
+  file into it.
 - **`_acronyms.py`**: `aastex.Acronym` definitions; prose uses `\ACRONYM` macros.
 - **`_preamble.py`**: custom commands: `\ESISI` and `\ESISII` for the two
   flights, ion macros such as `\NeVII`, and a colored comment macro per author

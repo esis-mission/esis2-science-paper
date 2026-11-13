@@ -1,7 +1,8 @@
 name: Set up the article
 description: >-
   Install LaTeX, Python, and this package, and restore the CHIANTI database and
-  the spectrum computed from it, which every build of the article needs.
+  what the article computed in earlier runs, which every build of the article
+  needs. The `remember` action saves what this run computes.
 
 inputs:
   python-version:
@@ -11,6 +12,14 @@ inputs:
     description: The optional dependencies of this package to install, such as `[test]`.
     required: false
     default: ""
+
+outputs:
+  cache-key:
+    description: The key the `remember` action saves what this run computes under.
+    value: ${{ steps.computed.outputs.key }}
+  cache-paths:
+    description: The paths the cache of what the article computes holds.
+    value: ${{ steps.computed.outputs.paths }}
 
 runs:
   using: composite
@@ -69,36 +78,52 @@ runs:
             show_progress=False,
         )
         "
-    # The effective area is remembered against the versions of `optika` and
-    # `esis` which traced it, so this key has to name them too. Without
-    # them the key hits exactly, `actions/cache` declines to save what the
-    # run recomputed, and every run after a release pays for the trace again.
-    - name: Ask which optika and esis are installed
-      id: versions
+    # What the article computes is cached as well: the spectrum, the
+    # effective area, and the simulated image this package remembers, the
+    # contribution functions of the scene of that image, which `esis`
+    # remembers and which take a quarter of an hour of their own, and the
+    # AIA images the scene is made from, with the searches which found them.
+    # The images come from the JSOC, which now and then does not answer a
+    # runner in time, so a run which restores them does not ask it. Only the
+    # Level 1 images are cached, named as files, since a pattern which names
+    # a directory caches all of it: sdo prepares the Level 1.5 images beside
+    # them without the JSOC, and each is several times the size.
+    #
+    # `joblib` keys each result on the versions of the packages which
+    # computed it, so a release of any of them leaves the cache holding the
+    # answer to an old question. A fixed key would still hit, and
+    # `actions/cache` would decline to save what the run recomputed, so
+    # every run after the release would pay for it again. Instead the cache
+    # rolls: each run restores the newest one saved under the version of
+    # CHIANTI, and the `remember` action saves a new one under a key of its
+    # own if the run computed anything. `joblib` decides for itself whether
+    # what was restored still answers the question.
+    - name: Name the cache of what the article computes
+      id: computed
       shell: bash
-      run: |
-        python -c "
-        from importlib.metadata import version
-        print(f'optika={version(\"optika\")}')
-        print(f'esis={version(\"euv-snapshot-imaging-spectrograph\")}')
-        " >> $GITHUB_OUTPUT
-    # The simulated image is remembered in the same place, and the
-    # contribution functions of its scene by `esis`, which take a quarter
-    # of an hour of their own.
-    - name: Restore the spectrum computed from it
-      uses: actions/cache@v4
-      with:
-        path: |
+      env:
+        PATHS: |
           ~/.esis/cache/esis2_science_paper
           ~/.esis/cache/esis/data/synth/_scene_dem
-        key: >-
-          spectrum-${{ steps.chianti.outputs.version }}-${{
-          steps.versions.outputs.optika }}-${{
-          steps.versions.outputs.esis }}-${{
-          hashFiles('esis2_science_paper/_spectrum.py', 'esis2_science_paper/_synthetic.py') }}
-        # An older spectrum is worth restoring even when this module or
-        # those versions have changed, since `joblib` decides for itself
-        # whether what it holds still answers the question, and recomputes
-        # when it does not.
-        restore-keys: |
-          spectrum-${{ steps.chianti.outputs.version }}-
+          ~/.sdo/cache/SUM*/**/image_lev1.fits
+          ~/.sdo/cache/sdo/aia/_data/_urls
+        PREFIX: computed-${{ steps.chianti.outputs.version }}-
+      run: |
+        echo "prefix=$PREFIX" >> "$GITHUB_OUTPUT"
+        echo "key=${PREFIX}${{ github.run_id }}-${{ github.run_attempt }}-${{ inputs.python-version }}" >> "$GITHUB_OUTPUT"
+        {
+          echo "paths<<EOF"
+          echo "$PATHS"
+          echo "EOF"
+        } >> "$GITHUB_OUTPUT"
+    - name: Restore what the article computed in an earlier run
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ steps.computed.outputs.paths }}
+        key: ${{ steps.computed.outputs.key }}
+        restore-keys: ${{ steps.computed.outputs.prefix }}
+    # The `remember` action saves the cache only if a file in it is newer
+    # than this, which is newer than every file restored.
+    - name: Mark the time the cache was restored
+      shell: bash
+      run: touch "$RUNNER_TEMP/computed-restored"

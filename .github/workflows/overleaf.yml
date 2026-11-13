@@ -37,6 +37,7 @@ jobs:
       # The figures are drawn with LaTeX and computed from the CHIANTI
       # database, like those the `tests` workflow builds.
       - name: Set up the article
+        id: setup
         uses: ./.github/actions/setup
         with:
           python-version: "3.12"
@@ -126,3 +127,12 @@ jobs:
           fi
           git commit -m "$message"
           git push
+
+      # After the delivery, so as not to hold it up, and even if it failed,
+      # since what was computed before it is worth keeping.
+      - name: Remember what the article computed
+        if: ${{ !cancelled() }}
+        uses: ./.github/actions/remember
+        with:
+          key: ${{ steps.setup.outputs.cache-key }}
+          paths: ${{ steps.setup.outputs.cache-paths }}

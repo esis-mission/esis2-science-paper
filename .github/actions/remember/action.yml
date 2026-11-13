@@ -1,0 +1,44 @@
+name: Remember what the article computed
+description: >-
+  Save the cache of what the article computes, which the `setup` action
+  restored, under a key of its own, if this run computed anything new.
+
+inputs:
+  key:
+    description: The key to save the cache under, the `cache-key` output of the `setup` action.
+    required: true
+  paths:
+    description: The paths the cache holds, the `cache-paths` output of the `setup` action.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    # The patterns of the cache are expanded as `actions/cache` expands
+    # them, and searched for a file written since the cache was restored.
+    # A run which computed nothing saves nothing, so that the caches of the
+    # repository are not filled with copies of one another.
+    - name: Find whether this run computed anything new
+      id: new
+      shell: bash
+      env:
+        PATHS: ${{ inputs.paths }}
+      run: |
+        shopt -s globstar nullglob
+        new=false
+        while IFS= read -r pattern; do
+          for path in ${pattern/#\~/$HOME}; do
+            file=$(find "$path" -type f -newer "$RUNNER_TEMP/computed-restored" -print -quit 2>/dev/null || true)
+            if [ -n "$file" ]; then
+              echo "New since the cache was restored: $file"
+              new=true
+            fi
+          done
+        done <<< "$PATHS"
+        echo "new=$new" >> "$GITHUB_OUTPUT"
+    - name: Save what this run computed
+      if: steps.new.outputs.new == 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ inputs.paths }}
+        key: ${{ inputs.key }}
