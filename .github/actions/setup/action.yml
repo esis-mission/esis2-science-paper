@@ -110,7 +110,7 @@ runs:
         PREFIX: computed-${{ steps.chianti.outputs.version }}-
       run: |
         echo "prefix=$PREFIX" >> "$GITHUB_OUTPUT"
-        echo "key=$PREFIX${{ github.run_id }}-${{ github.run_attempt }}-${{ inputs.python-version }}" >> "$GITHUB_OUTPUT"
+        echo "key=${PREFIX}${{ github.run_id }}-${{ github.run_attempt }}-${{ inputs.python-version }}" >> "$GITHUB_OUTPUT"
         {
           echo "paths<<EOF"
           echo "$PATHS"
