@@ -103,6 +103,11 @@ silently missing; `test_pdf` checks for this.
   JSOC searches) is a rolling cache: `.github/actions/setup` restores the newest
   one, and `.github/actions/remember` saves a new one only if the run wrote a
   file into it.
+  A result too slow for a runner is computed on a workstation and given to
+  the cache by `.github/workflows/seed.yml`, from an archive of
+  `~/.esis/cache` attached to a draft release. `joblib` keys are the same on
+  Windows and Linux, but only if the workstation has the versions of the
+  packages the runner installs.
 
 ## Overleaf
 
