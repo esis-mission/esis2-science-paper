@@ -19,9 +19,11 @@ jobs:
     name: ${{ matrix.os }}, Python ${{ matrix.python-version }} test
     steps:
       - uses: actions/checkout@v4
-      # LaTeX, Python, this package, and the CHIANTI database and the
-      # spectrum computed from it, which the `overleaf` workflow needs too.
+      # LaTeX, Python, this package, the CHIANTI database, and what the
+      # article computed in earlier runs, which the `overleaf` workflow
+      # needs too.
       - name: Set up the article
+        id: setup
         uses: ./.github/actions/setup
         with:
           python-version: ${{ matrix.python-version }}
@@ -36,6 +38,13 @@ jobs:
         run: |
           pip install pytest-cov
           pytest --cov=. --cov-report=xml
+      # Even if a test failed, what was computed before it is worth keeping.
+      - name: Remember what the article computed
+        if: ${{ !cancelled() }}
+        uses: ./.github/actions/remember
+        with:
+          key: ${{ steps.setup.outputs.cache-key }}
+          paths: ${{ steps.setup.outputs.cache-paths }}
       - name: Upload the article
         if: matrix.python-version == '3.12'
         uses: actions/upload-artifact@v4
