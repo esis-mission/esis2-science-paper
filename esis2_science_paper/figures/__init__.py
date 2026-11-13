@@ -10,6 +10,7 @@ import aastex
 from ._bunch import bunch, lines_detected, num_emission_lines
 from ._contribution import contribution
 from ._field_stop_projections import field_stop_projections
+from ._muram import fraction_masked, muram
 from ._synthetic_image import synthetic_image
 
 __all__ = [
@@ -17,7 +18,9 @@ __all__ = [
     "contribution",
     "field_stop_projections",
     "figures",
+    "fraction_masked",
     "lines_detected",
+    "muram",
     "num_emission_lines",
     "synthetic_image",
 ]
@@ -35,4 +38,5 @@ def figures() -> list[aastex.Figure]:
         contribution(),
         field_stop_projections(),
         synthetic_image(),
+        muram(),
     ]

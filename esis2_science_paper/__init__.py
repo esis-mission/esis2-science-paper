@@ -4,6 +4,7 @@ Create the figures and the numbers of this article, and compile its manuscript.
 
 from . import figures
 from ._export import export
+from ._muram import image_muram
 from ._pdf import pdf
 from ._spectrum import lines
 from ._synthetic import image_synthetic, scene_synthetic, snr_synthetic
@@ -44,6 +45,7 @@ __all__ = [
     "figures",
     "filename_main",
     "filename_variables",
+    "image_muram",
     "image_synthetic",
     "lines",
     "pdf",

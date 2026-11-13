@@ -13,10 +13,36 @@
     \NeVII~\citep{DePontieu2014}; \AIA\ images given the radiance and width of
     \SiXII; and beam heating events from the HYDRAD simulations inserted into the moss.
     The first two are \texttt{esis.data.synth.scene\_iris} and \texttt{scene\_aia}.
+\item A radiative \MHD\ simulation of an \AR\ with MURaM~\citep{Rempel2023}, whose
+    velocity-resolved \DEM\ gives the line profiles directly, with
+    \texttt{esis.flights.f2.data.synth.scene\_muram} (Figure~\ref{fig:muram}).
 \item Forward modeled through \texttt{esis.flights.f2}, with photon and read noise for a single
     exposure.
 \item \textbf{Figure:} a simulated image from every channel.
-\end{outline}
+\end{outline}%
+
+
+\begin{figure*}[!htb]%
+\centering%
+\includegraphics{generated/muram.pdf}%
+\caption{
+Above, a radiative \MHD\ simulation of an active region with MURaM, before its
+M6.6 flare~\citep{Rempel2023}: the radiance and the Doppler centroid of \NeVII\ and
+\SiXII, positive away from the observer, synthesized from its velocity-resolved
+\DEM.
+The plasma in each bin of temperature and of line-of-sight velocity emits a Gaussian
+at the center of the bin, with its thermal width and the width of plasma spread
+evenly across the bin.
+Each pixel of the simulation is stretched to span one pixel of the detector, so that
+the simulation fills the field of view at \stretchMuram\ times its true size.
+The Doppler centroid is not drawn, in gray, where the radiance is among the faintest
+\fractionMaskedMuram\ of its map.
+Below, a simulated \timeExposure\ exposure from one channel of \ESISII\ of the
+\numLinesMuram\ lines of the passband which carry at least \fractionLineMin\ of its
+radiance, in the electrons collected by each pixel of the \CCD, on a square-root
+scale, with the shot noise of the photons and the read noise of the camera.}%
+\label{fig:muram}%
+\end{figure*}
 
 %
 \subsection{Inversion Method}%

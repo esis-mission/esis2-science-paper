@@ -81,6 +81,17 @@ silently missing; `test_pdf` checks for this.
   The `figure` environment and the caption are in `manuscript/`.
 - **`_variables.py`**: `aastex.Variable` LaTeX macros for every numeric value
   cited in the prose.
+- **`_muram.py`**: a simulated exposure of the MURaM active region of
+  `esis.flights.f2.data.synth.scene_muram`, with the radiance and Doppler
+  centroid of Ne VII and Si XII in the scene. It takes half an hour on a
+  workstation and would take hours on a runner, so its `joblib` cache is the
+  directory `cache/` at the root of the repository, which is committed. The
+  key holds the versions of the packages, so a release of one of them (or an
+  edit to `_muram`) leaves the committed result unused, and CI fails rather
+  than compute it. Then run `esis2_science_paper.image_muram()` on a
+  workstation with the versions CI installs, delete the old directories
+  beside the new ones in `cache/`, and commit them with `git add --force`,
+  since `joblib` writes a `.gitignore` of its own into `cache/`.
 - **`_export.py`**: `export(directory)` writes `generated/` (the image of each
   figure, `variables.tex`, a README for the authors) and the class files into
   a copy of the manuscript, replacing those of the last delivery. It never
@@ -147,5 +158,6 @@ silently missing; `test_pdf` checks for this.
 - Cite only entries in `manuscript/sources.bib`, and add new ones from the publisher's
   record (e.g. `curl -LH "Accept: application/x-bibtex" https://doi.org/<doi>`)
   rather than typing them by hand.
-- Generated LaTeX/PDF output and caches are gitignored; never commit build artifacts.
+- Generated LaTeX/PDF output and caches are gitignored, except `cache/`; never
+  commit build artifacts.
 - Stage explicit files with `git add`; never `git add` whole directories.
