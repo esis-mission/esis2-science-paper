@@ -1,24 +1,13 @@
-import aastex
+\section{Inversions of Test Data}%
+\label{sec:InversionsofTestData}%
 
-__all__ = [
-    "inversions",
-]
-
-
-def inversions() -> aastex.Section:
-    """
-    The section inverting test data to validate the inversion of extended
-    structures, the technology objective of ESIS-II.
-    """
-    result = aastex.Section("Inversions of Test Data")
-    result.append(r"""
 \begin{outline}
 \item The test data are simulated \ESISII\ observations of scenes whose line profiles are known,
     so the inversions can be compared with the truth.
-\end{outline}""")
+\end{outline}%
+\subsection{Test Data}%
+\label{subsec:TestData}%
 
-    subsection_data = aastex.Subsection("Test Data")
-    subsection_data.append(r"""
 \begin{outline}
 \item Scenes with known line profiles: \IRIS\ \SiIV\ rasters of \ARs\ rescaled to
     \NeVII~\citep{DePontieu2014}; \AIA\ images given the radiance and width of
@@ -27,21 +16,23 @@ def inversions() -> aastex.Section:
 \item Forward modeled through \texttt{esis.flights.f2}, with photon and read noise for a single
     exposure.
 \item \textbf{Figure:} a simulated image from every channel.
-\end{outline}""")
-    result.append(subsection_data)
+\end{outline}
 
-    subsection_methods = aastex.Subsection("Inversion Method")
-    subsection_methods.append(r"""
+%
+\subsection{Inversion Method}%
+\label{subsec:InversionMethod}%
+
 \begin{outline}
 \item \MARTCapital~\citep{Gordon1970}, as applied to \ESISI~\citep[][Appendix~B]{Parker2022}:
     multiplicative updates keep the solution positive and assume no line shape, and regularization
     suppresses the ``plaid'' artifacts along the projection directions.
 \item Implemented in \texttt{ctis}.
-\end{outline}""")
-    result.append(subsection_methods)
+\end{outline}
 
-    subsection_experiments = aastex.Subsection("Validation Experiments")
-    subsection_experiments.append(r"""
+%
+\subsection{Validation Experiments}%
+\label{subsec:ValidationExperiments}%
+
 \begin{outline}
 \item Invert using every subset of three or more channels, and compare the recovered moments with
     each other and with the truth.
@@ -51,18 +42,16 @@ def inversions() -> aastex.Section:
     the withheld-channel residual predicts the true error.
 \item Error in intensity, Doppler shift, and width versus the number of channels, separately for
     compact brightenings in \NeVII\ and extended loops in \SiXII.
-\end{outline}""")
-    result.append(subsection_experiments)
+\end{outline}
 
-    subsection_results = aastex.Subsection("Results")
-    subsection_results.append(r"""
+%
+\subsection{Results}%
+\label{subsec:Results}%
+
 \begin{outline}
 \item Compact \NeVII\ brightenings: whether the blue shifts of beam heating events are recovered
     with few channels, as for the explosive events of \ESISI~\citep{Parker2022}.
 \item Extended \SiXII\ structures: \numChannelsRequired\ channels recover the Doppler shift to
     within \velocityError.
 \item \textbf{Figures:} recovered versus true moments; error versus the number of channels.
-\end{outline}""")
-    result.append(subsection_results)
-
-    return result
+\end{outline}

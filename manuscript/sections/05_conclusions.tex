@@ -1,13 +1,6 @@
-import aastex
+\section{Conclusions}%
+\label{sec:Conclusions}%
 
-__all__ = [
-    "conclusions",
-]
-
-
-def conclusions() -> aastex.Section:
-    result = aastex.Section("Conclusions")
-    result.append(r"""
 \begin{outline}
 \item How the \NeVII\ and \SiXII\ passband serves the two science objectives and the technology
     objective.
@@ -16,5 +9,4 @@ def conclusions() -> aastex.Section:
     orbital \CTIS.
 \item The data products, Levels 0 through 3, and the software which makes them, released through
     the \texttt{esis} package and the Solar Data Analysis Center.
-\end{outline}""")
-    return result
+\end{outline}

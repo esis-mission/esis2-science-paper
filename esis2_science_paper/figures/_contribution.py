@@ -73,15 +73,5 @@ def contribution() -> aastex.Figure:
     result = aastex.Figure("fig:contribution", position="!htb")
     result.append(aastex.NoEscape(r"\centering"))
     result.add_fig(fig, width=aastex.NoEscape(r"\columnwidth"))
-    result.add_caption(aastex.NoEscape(r"""
-The contribution functions of the two lines \ESISII\ observes (solid), and of
-the \SiIV\ line in which \citet{Testa2014} saw the upflows of beam heating
-with \IRIS\ (dashed).
-Each is the emissivity of the line per steradian divided by $n_e n_H$,
-computed from version \chiantiVersion\ of the CHIANTI atomic
-database~\citep{Dere1997,DelZanna2021} with the abundances and the pressure
-of Figure~\ref{fig:bunch}.
-The peaks, at \temperatureSiIV, \temperatureNeVII, and \temperatureSiXII,
-are the temperatures at which the lines are formed."""))
 
     return result

@@ -47,7 +47,4 @@ Homepage = "https://github.com/esis-mission/esis2-science-paper"
 [tool.setuptools.packages.find]
 include = ["esis2_science_paper*"]
 
-[tool.setuptools.package-data]
-esis2_science_paper = ["*.bib"]
-
 [tool.setuptools_scm]

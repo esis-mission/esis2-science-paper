@@ -1,19 +1,6 @@
-import aastex
+\section{The \ESISII\ Instrument}%
+\label{sec:TheESISIIInstrument}%
 
-import esis2_science_paper
-
-__all__ = [
-    "instrument",
-]
-
-
-def instrument() -> aastex.Section:
-    """
-    The section describing ESIS-II, mostly in terms of what has changed since
-    the first flight.
-    """
-    result = aastex.Section(aastex.NoEscape(r"The \ESISII\ Instrument"))
-    result.append(r"""
 \begin{outline}
 \item A six-channel \CTIS: a parabolic primary mirror images the Sun onto an octagonal field stop,
     which six gratings re-image onto six \CCDs, each channel dispersing in a different direction.
@@ -23,10 +10,10 @@ def instrument() -> aastex.Section:
 \item The design has changed considerably since the proposal.
     Every number comes from the current \ESISII\ model, \texttt{esis.flights.f2}, in the
     \texttt{esis} package.
-\end{outline}""")
+\end{outline}%
+\subsection{Changes Since the First Flight}%
+\label{subsec:ChangesSincetheFirstFlight}%
 
-    subsection_changes = aastex.Subsection("Changes Since the First Flight")
-    subsection_changes.append(r"""
 \begin{outline}
 \item \textbf{New:} the passband; a primary mirror with a longer focal length, which uses the full
     length of the optical table now that \MOSES\ is gone from it; new gratings; Si/Sc multilayer
@@ -38,11 +25,12 @@ def instrument() -> aastex.Section:
 \item \textbf{Table:} each subsystem of \ESISI, and whether \ESISII\ reuses, modifies, or
     replaces it.
 \item \textbf{Figure:} \ESISI\ and \ESISII\ on the optical table.
-\end{outline}""")
-    result.append(subsection_changes)
+\end{outline}
 
-    subsection_optics = aastex.Subsection("Optical Design")
-    subsection_optics.append(r"""
+%
+\subsection{Optical Design}%
+\label{subsec:OpticalDesign}%
+
 \begin{outline}
 \item The primary mirror moves aft and the gratings forward on the optical table, lengthening the
     focal length of the primary for a finer plate scale.
@@ -57,12 +45,23 @@ def instrument() -> aastex.Section:
 \item \textbf{Table:} the optical prescription.
 \item \textbf{Figures:} the layout of the six channels and their dispersion directions; spot
     diagrams across the \FOV\ at both wavelengths.
-\end{outline}""")
-    subsection_optics.append(esis2_science_paper.figures.field_stop_projections())
-    result.append(subsection_optics)
+\end{outline}%
 
-    subsection_coatings = aastex.Subsection("Multilayer Coatings and Filters")
-    subsection_coatings.append(r"""
+
+\begin{figure}[!htb]%
+\centering%
+\includegraphics{generated/projections.pdf}%
+\caption{
+The image of the field stop on the detector of a single \ESISII\ channel, at
+each of the \numEmissionLines\ lines of Figure~\ref{fig:bunch}.
+The axes span the active area of the \CCD.}%
+\label{fig:projections}%
+\end{figure}
+
+%
+\subsection{Multilayer Coatings and Filters}%
+\label{subsec:MultilayerCoatingsandFilters}%
+
 \begin{outline}
 \item The primary mirror and the gratings both need multilayers which reflect \NeVII\ and \SiXII\
     well and suppress \SIrange{215}{267}{\angstrom}, which would otherwise reach the detector in
@@ -79,32 +78,35 @@ def instrument() -> aastex.Section:
 \item Filters: the \ESISI\ design, with the transmission modeled including an oxide layer.
 \item \textbf{Figure:} the reflectance of the coatings and the transmission of the filters versus
     wavelength, and the measured reflectance of the test sample with the fit.
-\end{outline}""")
-    result.append(subsection_coatings)
+\end{outline}
 
-    subsection_cameras = aastex.Subsection("Cameras and Avionics")
-    subsection_cameras.append(r"""
+%
+\subsection{Cameras and Avionics}%
+\label{subsec:CamerasandAvionics}%
+
 \begin{outline}
 \item The cameras of \ESISI\ and the new cameras which make up six.
     The readout sets the cadence, \cadence, with no dead time between exposures.
 \item Gain, read noise, and dark current of all six cameras. \roy{Measured with
     \texttt{msfc-ccd}.}
 \item The \DACS, with new cables for the new cameras and telemetry through \EVTM.
-\end{outline}""")
-    result.append(subsection_cameras)
+\end{outline}
 
-    subsection_mechanical = aastex.Subsection("Mechanical Changes")
-    subsection_mechanical.append(r"""
+%
+\subsection{Mechanical Changes}%
+\label{subsec:MechanicalChanges}%
+
 \begin{outline}
 \item The new positions of the primary mirror, field stop, gratings, and filters on the optical
     table, and the effect on the sag of the table measured while aligning \ESISI.
 \item The \ESISI\ primary mirror shifted by about \ang{;10;} in vibration testing, and how the
     \ESISII\ mount prevents that. \jake{Is the stiffer mount from the proposal still the plan?}
-\end{outline}""")
-    result.append(subsection_mechanical)
+\end{outline}
 
-    subsection_alignment = aastex.Subsection("Alignment and Focus")
-    subsection_alignment.append(r"""
+%
+\subsection{Alignment and Focus}%
+\label{subsec:AlignmentandFocus}%
+
 \begin{outline}
 \item The \ESISI\ procedure, with a visible-light alignment grating for each channel whose
     ruling is scaled by the ratio of the HeNe wavelength to the center of the passband, so that
@@ -113,11 +115,12 @@ def instrument() -> aastex.Section:
     align each grating to its \CCD; focus each \CCD; transfer the alignment from the visible
     gratings to the \EUV\ gratings.
 \item \roy{As-measured alignment and focus, once the instrument is aligned.}
-\end{outline}""")
-    result.append(subsection_alignment)
+\end{outline}
 
-    subsection_area = aastex.Subsection("Effective Area and Expected Count Rates")
-    subsection_area.append(r"""
+%
+\subsection{Effective Area and Expected Count Rates}%
+\label{subsec:EffectiveAreaandExpectedCountRates}%
+
 \begin{outline}
 \item Effective area from the geometric area, the reflectance of the two coatings, the groove
     efficiency, the filter transmission, and the \QE\ of the \CCD, compared with the requirement of
@@ -131,19 +134,46 @@ def instrument() -> aastex.Section:
     this inversion and 0.3 from demregpy, so this inversion is the closer of the two.
     Details in esis-mission/esis\#72.}
 \item \textbf{Figure:} the effective area versus wavelength.
-\end{outline}""")
-    subsection_area.append(esis2_science_paper.figures.synthetic_image())
-    result.append(subsection_area)
+\end{outline}%
 
-    subsection_operations = aastex.Subsection("Concept of Operations")
-    subsection_operations.append(r"""
+
+\begin{figure*}[!htb]%
+\centering%
+\includegraphics{generated/synthetic.pdf}%
+\caption{
+Above, a simulated \timeExposure\ exposure from one channel of \ESISII, in the
+electrons collected by each pixel of the \CCD, on a square-root scale, with the shot
+noise of the photons and the read noise of the camera.
+The scene is the active regions NOAA 12565 and 12567 at 00:00~UT on 2016 July 15:
+the \DEM\ of each \AIA\ pixel, inverted from the six optically thin \EUV\ channels
+with the method of \citet{Plowman2020}, and the \numLinesScene\ lines of the
+passband which carry at least \fractionLineMin\ of its radiance, at rest.
+The images of \NeVII\ and \SiXII\ fall on either side of the center.
+The fainter images around them are of \FeXIV, almost on top of \NeVII; of \FeXV,
+\NeV, and \FeXIII\ across the center; of a second line of \FeXIII\ and the weaker
+line of \SiXII, which clip the right edge; and of shorter lines of \FeXIV, \SXIV,
+and \MgIX, which clip the left edge.
+The lines of \MgVII\ and \MgVIII\ at the short end of the passband put almost no
+light on the detector, since the coatings reflect little there, and their images
+fall mostly off its left edge.
+Below, on a logarithmic scale, the \SNR\ of each resolution element, a block of
+$\sizeBlock \times \sizeBlock$ pixels: the electrons it collects on average, over the
+standard deviation of the noise of their sum, from the shot noise of the photons it
+absorbs, the spread of the charge each frees, and the read noise of each of its
+pixels.
+It leaves out the charge which diffuses between pixels, which lowers the noise of
+each pixel only by correlating it with its neighbors.}%
+\label{fig:synthetic}%
+\end{figure*}
+
+%
+\subsection{Concept of Operations}%
+\label{subsec:ConceptofOperations}%
+
 \begin{outline}
 \item Launch from \WSMR, with the target \AR\ chosen the day before.
 \item The cameras expose continuously every \cadence; frames taken before the door opens and after
     it closes are darks.
 \item Uplink commands can restart the cameras or repoint the payload.
     Only a subset of the frames is telemetered, so the payload must be recovered.
-\end{outline}""")
-    result.append(subsection_operations)
-
-    return result
+\end{outline}

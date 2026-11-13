@@ -1,0 +1,169 @@
+name: manuscript
+
+# Keep the prose in the `manuscript` directory and the Overleaf project, where
+# the authors edit it, the same.
+#
+# The two are copies of one another, apart from the files the `overleaf`
+# workflow delivers on a release, which are not kept in the repository.
+#
+# From Overleaf: every night, or by hand, the prose of the Overleaf project
+# is copied into a pull request, since Overleaf cannot say when it is edited.
+#
+# To Overleaf: when a pull request which changes the manuscript is merged,
+# its changes are merged into the Overleaf project, beside whatever the
+# authors have edited there since.
+
+on:
+  schedule:
+    # early in the morning in Montana
+    - cron: "23 9 * * *"
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - manuscript/**
+
+permissions:
+  contents: write
+  pull-requests: write
+  # to start the checks of the pull request, which GitHub does not start
+  # for one opened by a workflow
+  actions: write
+
+# Shared with the `overleaf` workflow: Overleaf refuses a push which is not
+# a fast-forward, and prose is not fetched while a change is being sent.
+concurrency:
+  group: overleaf
+  cancel-in-progress: false
+
+env:
+  BRANCH: overleaf/sync
+
+jobs:
+  fetch:
+    name: Bring the prose from Overleaf
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Look for the Overleaf credentials
+        id: overleaf
+        env:
+          OVERLEAF_TOKEN: ${{ secrets.OVERLEAF_TOKEN }}
+          OVERLEAF_PROJECT_ID: ${{ secrets.OVERLEAF_PROJECT_ID }}
+        run: |
+          if [ -n "$OVERLEAF_TOKEN" ] && [ -n "$OVERLEAF_PROJECT_ID" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::OVERLEAF_TOKEN or OVERLEAF_PROJECT_ID is not set; not fetching from Overleaf."
+          fi
+
+      - name: Clone the Overleaf project
+        if: steps.overleaf.outputs.available == 'true'
+        env:
+          OVERLEAF_TOKEN: ${{ secrets.OVERLEAF_TOKEN }}
+          OVERLEAF_PROJECT_ID: ${{ secrets.OVERLEAF_PROJECT_ID }}
+        run: |
+          git clone --depth 1 \
+            "https://git:${OVERLEAF_TOKEN}@git.overleaf.com/${OVERLEAF_PROJECT_ID}" \
+            "$RUNNER_TEMP/overleaf"
+
+      - name: Copy its prose into the manuscript
+        id: copy
+        if: steps.overleaf.outputs.available == 'true'
+        # Everything tracked is removed first, so that a file deleted in
+        # Overleaf is deleted here. The delivered files come along, and are
+        # ignored by git.
+        run: |
+          git switch -C "$BRANCH"
+          git ls-files -z manuscript | xargs -0 -r rm -f
+          rsync -a --exclude .git "$RUNNER_TEMP/overleaf/" manuscript/
+          git add --all manuscript
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "The manuscript already has the prose of the Overleaf project."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --cached --stat
+          fi
+
+      - name: Open a pull request with it
+        if: steps.copy.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # The branch is rewritten each time from `main`, so the pull request
+        # always holds everything Overleaf has that `main` does not.
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Bring the edits made in Overleaf into the manuscript"
+          git push --force origin "$BRANCH"
+          open=$(gh pr list --head "$BRANCH" --state open --json number --jq length)
+          if [ "$open" = "0" ]; then
+            gh pr create \
+              --base main \
+              --head "$BRANCH" \
+              --title "Bring the edits made in Overleaf into the manuscript" \
+              --body "The prose of the Overleaf project, copied by the manuscript workflow. Merging it changes nothing in Overleaf."
+          fi
+          for workflow in tests.yml ruff.yml black.yml; do
+            gh workflow run "$workflow" --ref "$BRANCH"
+          done
+
+  send:
+    name: Send the prose to Overleaf
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # both ends of the push are compared
+          fetch-depth: 0
+
+      - name: Look for the Overleaf credentials
+        id: overleaf
+        env:
+          OVERLEAF_TOKEN: ${{ secrets.OVERLEAF_TOKEN }}
+          OVERLEAF_PROJECT_ID: ${{ secrets.OVERLEAF_PROJECT_ID }}
+        run: |
+          if [ -n "$OVERLEAF_TOKEN" ] && [ -n "$OVERLEAF_PROJECT_ID" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::OVERLEAF_TOKEN or OVERLEAF_PROJECT_ID is not set; not sending to Overleaf."
+          fi
+
+      - name: Clone the Overleaf project
+        if: steps.overleaf.outputs.available == 'true'
+        env:
+          OVERLEAF_TOKEN: ${{ secrets.OVERLEAF_TOKEN }}
+          OVERLEAF_PROJECT_ID: ${{ secrets.OVERLEAF_PROJECT_ID }}
+        run: |
+          git clone --depth 1 \
+            "https://git:${OVERLEAF_TOKEN}@git.overleaf.com/${OVERLEAF_PROJECT_ID}" \
+            "$RUNNER_TEMP/overleaf"
+
+      - name: Merge the changes to the manuscript into it
+        if: steps.overleaf.outputs.available == 'true'
+        run: >-
+          bash .github/scripts/send-manuscript.sh
+          "${{ github.event.before }}" "${{ github.sha }}" "$RUNNER_TEMP/overleaf"
+
+      - name: Send them to the Overleaf project
+        if: steps.overleaf.outputs.available == 'true'
+        # A pull request which brought edits from Overleaf changes nothing
+        # there, so there is nothing to send.
+        run: |
+          cd "$RUNNER_TEMP/overleaf"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --all
+          if git diff --cached --quiet; then
+            echo "The Overleaf project already has these changes."
+            exit 0
+          fi
+          git commit -m "Prose from esis2-science-paper ${GITHUB_SHA::7}"
+          git push

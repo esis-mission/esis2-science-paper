@@ -5,15 +5,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Overview
 
 `esis2-science-paper` is a **reproducible scientific article**, not a conventional
-software library. The `esis2_science_paper` Python package programmatically generates
-a complete AAS-journal LaTeX article (text, figures, tables, and numeric values)
-describing the second flight of the EUV Snapshot Imaging Spectrograph (ESIS-II).
+software library. Its prose is LaTeX in `manuscript/`, and the `esis2_science_paper`
+Python package computes every figure and numeric value the prose cites, for
+the second flight of the EUV Snapshot Imaging Spectrograph (ESIS-II).
 Calling `esis2_science_paper.pdf()` produces the final `esis2-science.pdf`.
 
-The authors edit the prose in **Overleaf**. `esis2_science_paper.export()`
-seeds the Overleaf project with the prose once, and every release replaces
-only the files in its `generated/` directory (the figure images and
-`variables.tex`) and the AASTeX class files; see **Overleaf** below.
+The authors edit the prose in **Overleaf**, and `manuscript/` is a copy of the
+Overleaf project. Edits flow both ways; see **Overleaf** below.
 
 This is one package within the larger Kankelborg-Group workspace (see the parent
 `../CLAUDE.md`). Its sibling articles `esis-instrument-paper` (the first flight)
@@ -44,12 +42,13 @@ numerals, ESIS-I and ESIS-II, as in the `esis` package.
   bespoke code here. The instrument model belongs in `esis`, the synthetic scenes
   in `esis.data.synth`, and the inversions in `ctis`. This repo should contain only
   prose, `aastex` document assembly, and thin glue that calls library functions.
-- **Every number in the prose is an `aastex.Variable`** defined in `_variables.py`.
-  A number the analysis cannot supply yet is declared with `_pending()`, which
-  renders as a bold `XX`, so the draft shows plainly what is still owed.
+- **Every number in the prose is an `aastex.Variable`** defined in `_variables.py`,
+  cited in the prose by its macro. A number the analysis cannot supply yet is
+  declared with `_pending()`, which renders as a bold `XX`, so the draft shows
+  plainly what is still owed.
 - Sections not yet written are drafted as an `outline` environment (defined in
-  `_preamble.py`), which renders as a gray bulleted list, so the plan cannot be
-  mistaken for the article.
+  the preamble of `manuscript/esis2-science.tex`), which renders as a gray
+  bulleted list, so the plan cannot be mistaken for the article.
 
 ## Commands
 
@@ -69,19 +68,26 @@ silently missing; `test_pdf` checks for this.
 
 ## Architecture
 
-The whole article is assembled in `_document.py`: `document()` builds an
-`aastex.Document`, appending acronyms, variables, title, authors, abstract,
-keywords, each section, and finally the bibliography (`sources.bib`). `pdf()`
-renders it from the files `export()` writes.
-
-- **`sections/`**: each module returns an `aastex.Section` (or `aastex.Abstract`).
-  Prose lives here as raw LaTeX strings (with `\cite`, `\ref`, equations) and
-  embeds figures/tables by calling the corresponding factory.
+- **`manuscript/`** (at the root of the repository): the prose.
+  `esis2-science.tex` is the main file (preamble, custom commands such as
+  `\ESISII` and `\NeVII`, a colored comment macro per author, title, authors,
+  keywords), `acronyms.tex` defines the `\ACRONYM` macros, `sections/NN_<name>.tex`
+  holds each section with its `figure` environments and captions, and
+  `sources.bib` is the bibliography. `manuscript/generated/` and the AASTeX
+  class files are written by `export()` and are gitignored.
 - **`figures/`**: each module builds a matplotlib figure and wraps it in an
-  `aastex.Figure`/`FigureStar` with a caption.
-- **`tables/`**: factories returning `aastex.Table` objects.
+  `aastex.Figure`/`FigureStar`, which names its image after its label
+  (`fig:bunch` is `generated/bunch.pdf`). `figures.figures()` lists them all.
+  The `figure` environment and the caption are in `manuscript/`.
 - **`_variables.py`**: `aastex.Variable` LaTeX macros for every numeric value
   cited in the prose.
+- **`_export.py`**: `export(directory)` writes `generated/` (the image of each
+  figure, `variables.tex`, a README for the authors) and the class files into
+  a copy of the manuscript, replacing those of the last delivery. It never
+  touches the prose.
+- **`_pdf.py`**: `pdf()` copies `manuscript/` into `esis2_science_paper/build/`,
+  exports into it, and compiles with `latexmk`. It finds `manuscript/` beside
+  the package, so the package must be installed in editable mode.
 - **`_spectrum.py`**: the CHIANTI spectrum of an active region (via `utu` and
   `fiasco`), the contribution functions of single lines and the temperatures
   they peak at, and the effective area of one ESIS-II channel. All are slow, so
@@ -97,48 +103,43 @@ renders it from the files `export()` writes.
   JSOC searches) is a rolling cache: `.github/actions/setup` restores the newest
   one, and `.github/actions/remember` saves a new one only if the run wrote a
   file into it.
-- **`_acronyms.py`**: `aastex.Acronym` definitions; prose uses `\ACRONYM` macros.
-- **`_preamble.py`**: custom commands: `\ESISI` and `\ESISII` for the two
-  flights, ion macros such as `\NeVII`, and a colored comment macro per author
-  (`\jake`, `\genevieve`, `\charles`, `\amy`, `\will`, `\roy`, `\adrian`).
 
 ## Overleaf
 
-- `_export.py`: `export(directory)` writes the article into a clone of the
-  Overleaf project. Every call replaces `generated/` (the image of each
-  figure, `variables.tex` with a `\newcommand` per `aastex.Variable`, and a
-  README for the authors) and the class files beside the main file. Only if
-  the project has no `esis2-science.tex` does it also seed the prose: the main
-  file (preamble, title, authors, keywords), `acronyms.tex` (one entry per
-  `aastex.Acronym`, a macro per line), one `sections/<NN>_<name>.tex` per
-  section with its figures and captions (`names_sections`, numbered in
-  reading order), and `sources.bib`.
-- **Once the project is seeded, the prose belongs to Overleaf.** Editing the
-  prose, captions, preamble, acronyms, or `sources.bib` here does not reach the
-  manuscript. Changes to the analysis (figures and numbers) are made here and
-  reach it with the next release. A new figure's image appears in `generated/`,
-  and its `figure` environment has to be added in Overleaf.
-- `pdf()` builds the article from a fresh `export()` into
-  `esis2_science_paper/build/` with `latexmk`, so the tests and the preview
-  compile exactly what a new project is seeded with.
-- `.github/workflows/overleaf.yml` runs on every published release (or by
-  hand): it clones the project with the `OVERLEAF_TOKEN` and
-  `OVERLEAF_PROJECT_ID` secrets, exports into it, attaches the result to the
-  release, and pushes one commit. `.github/actions/setup` holds the LaTeX,
-  Python, and CHIANTI setup it shares with `tests.yml`.
-- A renamed or removed `aastex.Variable` breaks any prose in Overleaf that
-  still cites it, so keep the names of variables stable.
+- **Prose flows both ways**, through `.github/workflows/manuscript.yml`.
+  - From Overleaf: nightly or by hand, it copies the Overleaf project's prose
+    over `manuscript/` on the branch `overleaf/sync` and opens a pull request,
+    then starts `tests`, `ruff`, and `black` on it, since GitHub starts no
+    checks for a pull request a workflow opens.
+  - To Overleaf: on a push to `main` which changes `manuscript/`,
+    `.github/scripts/send-manuscript.sh` merges each changed file three ways
+    (before the push, after it, and Overleaf's current copy) and pushes the
+    result. A conflict fails the run and sends nothing; settle it in a sync
+    pull request.
+- **Figures and numbers flow one way**, on a release (or by hand), through
+  `.github/workflows/overleaf.yml`: it clones the project, runs `export()`
+  into the clone, attaches the manuscript to the release, and pushes one
+  commit.
+- Both use the `OVERLEAF_TOKEN` and `OVERLEAF_PROJECT_ID` secrets and share a
+  concurrency group. `.github/actions/setup` holds the LaTeX, Python, and
+  CHIANTI setup `overleaf.yml` shares with `tests.yml`.
+- To edit prose from here, edit the `.tex` files in `manuscript/` in a pull
+  request. A new figure needs its module, an entry in `figures.figures()`, and
+  its `figure` environment in a section of `manuscript/`.
+- A renamed or removed `aastex.Variable` breaks any prose which still cites
+  it. `test_pdf` compiles the manuscript, so it fails here first; rename the
+  macro in `manuscript/` in the same pull request.
 
 ## Conventions
 
 - Every module declares an explicit `__all__` and exposes functionality through small
   factory functions, re-exported up the package via `__init__.py`. To add a new
-  figure/table/section: create `_name.py`, then add it to the subpackage `__init__.py`.
+  figure: create `_name.py`, then add it to `figures/__init__.py`.
 - Modules import the top-level package as `import esis2_science_paper` and reach back
   into it (`esis2_science_paper.figures.x()`) rather than deep relative imports.
 - House style: `Figure~\ref`, `Section~\ref`, `Table~\ref`; `\eg,` with a comma;
   a tie `~` before every `\citep`.
-- Cite only entries in `sources.bib`, and add new ones from the publisher's
+- Cite only entries in `manuscript/sources.bib`, and add new ones from the publisher's
   record (e.g. `curl -LH "Accept: application/x-bibtex" https://doi.org/<doi>`)
   rather than typing them by hand.
 - Generated LaTeX/PDF output and caches are gitignored; never commit build artifacts.

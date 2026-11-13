@@ -5,6 +5,9 @@ on:
     branches:
       - main
   pull_request:
+  # started by the `manuscript` workflow on the pull request it opens,
+  # which GitHub does not start checks for
+  workflow_dispatch:
 
 jobs:
   ruff:
